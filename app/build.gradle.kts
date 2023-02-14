@@ -52,6 +52,7 @@ android {
 
 dependencies {
 
+    implementation(project(":feature:videopicker"))
     implementation(project(":feature:player"))
 
     // compose bom
@@ -60,11 +61,8 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.bundles.compose)
-    implementation(libs.github.skydoves.landscapist.glide)
     implementation(libs.androidx.appcompat)
     implementation(libs.google.android.material)
-
-    implementation(libs.accompanist.permissions)
 
     // hilt
     implementation(libs.hilt.android)
