@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="NextPlayer" parent="Base.Theme.NextPlayer"/>
-
-    <style name="Base.Theme.NextPlayer" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="NextPlayer" parent="Theme.Material3.DayNight">
         <item name="android:statusBarColor">
             @android:color/transparent
         </item>
