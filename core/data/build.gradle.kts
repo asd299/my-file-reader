@@ -10,6 +10,7 @@ android {
 dependencies {
 
     implementation(project(":core:database"))
+    implementation(project(":core:media"))
     api(project(":core:datastore"))
 
     implementation(libs.androidx.core.ktx)
