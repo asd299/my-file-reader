@@ -14,6 +14,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.core.util.Consumer
@@ -41,6 +42,7 @@ import dev.anilbeesetti.nextplayer.feature.player.service.setVideoDecoderMode
 import dev.anilbeesetti.nextplayer.feature.player.service.stopPlayerSession
 import dev.anilbeesetti.nextplayer.feature.player.service.tryDecoderFallback
 import dev.anilbeesetti.nextplayer.feature.player.state.rememberMediaController
+import dev.anilbeesetti.nextplayer.feature.player.ui.PlayerSettingsOverlay
 import dev.anilbeesetti.nextplayer.feature.player.utils.PlayerApi
 import dev.anilbeesetti.nextplayer.feature.player.utils.PlaylistPlaybackContract
 import dev.anilbeesetti.nextplayer.feature.player.utils.asExplicitPlaylistItem
@@ -95,8 +97,8 @@ class PlayerActivity : ComponentActivity() {
 
         override fun onPlaybackStateChanged(playbackState: Int) {
             if (playbackState == Player.STATE_ENDED) {
-                isPlaybackFinished = mediaController?.playbackState == Player.STATE_ENDED
-                finishAndStopPlayerSession()
+                // Stay on the last frame and let the user replay instead of closing the player.
+                isPlaybackFinished = true
             }
         }
 
@@ -105,7 +107,6 @@ class PlayerActivity : ComponentActivity() {
                 mediaController?.repeatMode == Player.REPEAT_MODE_OFF
             ) {
                 isPlaybackFinished = true
-                finishAndStopPlayerSession()
             }
         }
     }
@@ -152,10 +153,15 @@ class PlayerActivity : ComponentActivity() {
             }
 
             NextPlayerTheme(darkTheme = true) {
+                var showSettings by rememberSaveable { mutableStateOf(value = false) }
                 MediaPlayerScreen(
                     viewModel = viewModel,
                     player = player,
+                    onSettingsClick = { showSettings = true },
                 )
+                if (showSettings) {
+                    PlayerSettingsOverlay(onDismiss = { showSettings = false })
+                }
             }
         }
     }
@@ -262,9 +268,7 @@ class PlayerActivity : ComponentActivity() {
 
     private fun startPlayback() {
         val controller = mediaController ?: return
-        if (!isIntentNew &&
-            (controller.currentMediaItem == null || controller.playbackState == Player.STATE_ENDED)
-        ) {
+        if (!isIntentNew && controller.currentMediaItem == null) {
             // Completion can happen while the activity's playback listener is detached.
             isPlaybackFinished = true
             finishAndStopPlayerSession()

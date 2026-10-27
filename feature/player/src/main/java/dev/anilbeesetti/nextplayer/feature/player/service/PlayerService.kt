@@ -394,16 +394,12 @@ class PlayerService : MediaSessionService() {
             )
 
             if (reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM) {
+                // Keep the media items and the session alive so the player can stay on the last
+                // frame and offer a replay action instead of closing itself.
                 if (mediaSession?.player?.repeatMode != Player.REPEAT_MODE_OFF) {
                     mediaSession?.player?.seekTo(0)
                     mediaSession?.player?.play()
-                    return
                 }
-                mediaSession?.run {
-                    player.clearMediaItems()
-                    player.stop()
-                }
-                stopSelf()
             }
         }
 

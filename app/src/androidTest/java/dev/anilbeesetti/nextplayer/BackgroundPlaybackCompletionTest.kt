@@ -32,11 +32,10 @@ class BackgroundPlaybackCompletionTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     @Test
-    fun wakingAfterBackgroundCompletionDoesNotReplayClearedQueue() =
-        checkCompletion(autoplay = false)
+    fun wakingAfterBackgroundCompletionKeepsLastFrame() = checkCompletion(autoplay = false)
 
     @Test
-    fun wakingAfterBackgroundCompletionClosesEndedQueue() = checkCompletion(autoplay = true)
+    fun wakingAfterBackgroundCompletionStaysOnEndedQueue() = checkCompletion(autoplay = true)
 
     private fun checkCompletion(autoplay: Boolean) {
         val context = instrumentation.targetContext
@@ -123,13 +122,14 @@ class BackgroundPlaybackCompletionTest {
                 if (autoplay) {
                     controller.playbackState == Player.STATE_ENDED
                 } else {
-                    controller.mediaItemCount == 0
+                    !controller.playWhenReady && controller.currentMediaItem != null
                 }
             }
             shell(command = "input keyevent KEYCODE_WAKEUP")
             shell(command = "wm dismiss-keyguard")
-            await(description = "completed player activity to close without replaying") {
-                firstActivity.isDestroyed
+            await(description = "player activity to stay on the last frame after waking") {
+                !firstActivity.isDestroyed &&
+                    firstActivity.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
             }
 
             // A deliberate new request for the same media must still start playback.

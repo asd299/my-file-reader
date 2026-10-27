@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -33,11 +34,14 @@ import dev.anilbeesetti.nextplayer.feature.player.state.rememberTapGestureState
 import dev.anilbeesetti.nextplayer.feature.player.state.rememberVideoZoomAndContentScaleState
 import dev.anilbeesetti.nextplayer.feature.player.state.rememberVolumeAndBrightnessGestureState
 import dev.anilbeesetti.nextplayer.feature.player.state.rememberVolumeState
+import dev.anilbeesetti.nextplayer.feature.player.ui.PlaybackEndedReplayButton
 import dev.anilbeesetti.nextplayer.feature.player.ui.PlayerErrorDialogs
 import dev.anilbeesetti.nextplayer.feature.player.ui.PlayerGestures
 import dev.anilbeesetti.nextplayer.feature.player.ui.PlayerVerticalGestureIndicators
 import dev.anilbeesetti.nextplayer.feature.player.ui.SubtitleConfiguration
 import dev.anilbeesetti.nextplayer.feature.player.ui.preview.rememberPreviewPlayer
+import dev.anilbeesetti.nextplayer.feature.player.ui.rememberIsPlaybackEnded
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
 val LocalControlsVisibilityState = compositionLocalOf<ControlsVisibilityState?> { null }
@@ -45,13 +49,14 @@ val LocalUseMaterialYouControls = compositionLocalOf { false }
 
 @OptIn(UnstableApi::class)
 @Composable
-fun MediaPlayerScreen(viewModel: PlayerViewModel, player: Player?) {
+fun MediaPlayerScreen(viewModel: PlayerViewModel, player: Player?, onSettingsClick: () -> Unit) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     MediaPlayerContent(
         player = player,
         state = state,
         onAction = viewModel::onAction,
+        onSettingsClick = onSettingsClick,
     )
 }
 
@@ -61,6 +66,7 @@ internal fun MediaPlayerContent(
     player: Player?,
     state: PlayerUiState,
     onAction: (PlayerAction) -> Unit,
+    onSettingsClick: () -> Unit = {},
 ) {
     val playerPreferences = state.playerPreferences
     val isPreview = LocalInspectionMode.current
@@ -142,6 +148,10 @@ internal fun MediaPlayerContent(
         LifecycleEventEffect(Lifecycle.Event.ON_START) {
             if (playerPreferences.rememberPlayerBrightness) {
                 brightnessState.setBrightness(playerPreferences.playerBrightness)
+            } else {
+                // Without this the window brightness stays unspecified and the gesture starts
+                // from the wrong value instead of the brightness currently on screen.
+                brightnessState.applyCurrentBrightness()
             }
         }
         LaunchedEffect(brightnessState.currentBrightness) {
@@ -186,6 +196,7 @@ internal fun MediaPlayerContent(
             seekGestureState = seekGestureState,
             videoZoomAndContentScaleState = videoZoomAndContentScaleState,
             isPipSupported = pictureInPictureState?.isPipSupported == true,
+            onSettingsClick = onSettingsClick,
             onPictureInPictureClick = {
                 pictureInPictureState?.let {
                     if (!it.hasPipPermission) {
@@ -201,14 +212,25 @@ internal fun MediaPlayerContent(
                 }
             },
         )
+        if (rememberIsPlaybackEnded(player = player)) {
+            PlaybackEndedReplayButton(
+                modifier = Modifier.align(Alignment.Center),
+                onClick = {
+                    player.seekTo(0L)
+                    player.play()
+                    controlsVisibilityState.showControls()
+                },
+            )
+        }
         if (volumeAndBrightnessGestureState != null && volumeState != null &&
             brightnessState != null
         ) {
             PlayerVerticalGestureIndicators(
                 activeGesture = volumeAndBrightnessGestureState.activeGesture,
-                volumePercentage = volumeState.volumePercentage,
+                volumePercentage = volumeAndBrightnessGestureState.volumePercentage.roundToInt(),
                 maxVolumePercentage = volumeState.maxVolumePercentage,
-                brightnessPercentage = brightnessState.brightnessPercentage,
+                brightnessPercentage =
+                    volumeAndBrightnessGestureState.brightnessPercentage.roundToInt(),
             )
         }
     }
