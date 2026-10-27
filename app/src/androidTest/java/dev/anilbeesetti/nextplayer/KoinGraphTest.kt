@@ -125,7 +125,6 @@ class KoinGraphTest {
                     MoreViewModel.Output(
                         openHistory = {},
                         playVideo = {},
-                        openSettings = {},
                         openTrash = {},
                         openVault = {},
                     ),
@@ -143,7 +142,6 @@ class KoinGraphTest {
                         addConnection = {},
                         editConnection = {},
                         openConnection = {},
-                        openSettings = {},
                         openStream = {},
                     ),
                 )
@@ -168,7 +166,6 @@ class KoinGraphTest {
                     store = store,
                     PlaylistListViewModel.Output(
                         openPlaylist = {},
-                        openSettings = {},
                     ),
                 )
                 viewModel<PlaylistDetailViewModel>(
@@ -252,7 +249,6 @@ class KoinGraphTest {
                     playVideo = {},
                     playVideos = {},
                     openFolder = {},
-                    openSettings = {},
                     openSearch = {},
                     openVault = {},
                 )

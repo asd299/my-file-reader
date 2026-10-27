@@ -49,7 +49,6 @@ fun EntryProviderScope<NavKey>.networkEntry(
     onAddConnection: () -> Unit,
     onEditConnection: (connectionId: Long) -> Unit,
     onOpenConnection: (connectionId: Long) -> Unit,
-    onSettingsClick: () -> Unit,
     onOpenStream: (Uri) -> Unit,
 ) {
     entry<NetworkRoute> {
@@ -57,7 +56,6 @@ fun EntryProviderScope<NavKey>.networkEntry(
             addConnection = onAddConnection,
             editConnection = onEditConnection,
             openConnection = onOpenConnection,
-            openSettings = onSettingsClick,
             openStream = onOpenStream,
         )
         val viewModel = koinViewModel<NetworkViewModel>(

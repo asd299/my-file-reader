@@ -34,7 +34,6 @@ class NetworkViewModel(
         val addConnection: () -> Unit,
         val editConnection: (Long) -> Unit,
         val openConnection: (Long) -> Unit,
-        val openSettings: () -> Unit,
         val openStream: (Uri) -> Unit,
     )
 
@@ -59,7 +58,6 @@ class NetworkViewModel(
             is NetworkAction.AddConnection -> output.addConnection()
             is NetworkAction.EditConnection -> output.editConnection(action.id)
             is NetworkAction.OpenConnection -> output.openConnection(action.id)
-            is NetworkAction.OpenSettings -> output.openSettings()
             is NetworkAction.OpenStream -> output.openStream(action.uri)
             is NetworkAction.DeleteConnection -> deleteConnection(action.id)
         }
@@ -86,7 +84,6 @@ sealed interface NetworkAction {
     data object AddConnection : NetworkAction
     data class EditConnection(val id: Long) : NetworkAction
     data class OpenConnection(val id: Long) : NetworkAction
-    data object OpenSettings : NetworkAction
     data class OpenStream(val uri: Uri) : NetworkAction
 
     data class DeleteConnection(val id: Long) : NetworkAction

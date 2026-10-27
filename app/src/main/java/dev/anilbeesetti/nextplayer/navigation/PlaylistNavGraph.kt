@@ -16,7 +16,6 @@ import dev.anilbeesetti.nextplayer.feature.playlist.navigation.PlaylistListRoute
 import dev.anilbeesetti.nextplayer.feature.playlist.navigation.navigateToPlaylistDetail
 import dev.anilbeesetti.nextplayer.feature.playlist.navigation.playlistDetailEntry
 import dev.anilbeesetti.nextplayer.feature.playlist.navigation.playlistListEntry
-import dev.anilbeesetti.nextplayer.settings.navigation.navigateToSettings
 
 fun EntryProviderScope<NavKey>.playlistNavGraph(
     context: Context,
@@ -24,7 +23,6 @@ fun EntryProviderScope<NavKey>.playlistNavGraph(
 ) {
     playlistListEntry(
         onPlaylistClick = backStack::navigateToPlaylistDetail,
-        onSettingsClick = backStack::navigateToSettings,
         onAddToHomeScreen = if (PlaylistShortcut.isSupported(context = context)) {
             { playlist ->
                 if (!PlaylistShortcut.requestPin(

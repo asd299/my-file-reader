@@ -341,7 +341,6 @@ class NetworkViewModelTest {
                     addConnection = {},
                     editConnection = {},
                     openConnection = {},
-                    openSettings = {},
                     openStream = {},
                 ),
                 repository = FakeNetworkConnectionRepository(
@@ -357,7 +356,6 @@ class NetworkViewModelTest {
                     addConnection = {},
                     editConnection = {},
                     openConnection = {},
-                    openSettings = {},
                     openStream = {},
                 ),
                 repository = FakeNetworkConnectionRepository(
@@ -373,7 +371,6 @@ class NetworkViewModelTest {
                     addConnection = {},
                     editConnection = {},
                     openConnection = {},
-                    openSettings = {},
                     openStream = {},
                 ),
                 repository = FakeNetworkConnectionRepository(

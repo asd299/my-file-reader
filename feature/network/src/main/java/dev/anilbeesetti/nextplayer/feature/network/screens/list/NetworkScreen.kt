@@ -92,19 +92,6 @@ internal fun NetworkScreenContent(state: NetworkUiState, onAction: (NetworkActio
             NextTopAppBar(
                 title = stringResource(R.string.network),
                 fontWeight = FontWeight.Bold,
-                actions = {
-                    IconButton(
-                        onClick = {
-                            onAction(NetworkAction.OpenSettings)
-                        },
-                        modifier = Modifier.tvFocusRing(),
-                    ) {
-                        Icon(
-                            imageVector = NextIcons.Settings,
-                            contentDescription = stringResource(R.string.settings),
-                        )
-                    }
-                },
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer,

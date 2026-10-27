@@ -26,13 +26,11 @@ fun NavBackStack<NavKey>.navigateToPlaylistDetail(playlistId: Long) {
 
 fun EntryProviderScope<NavKey>.playlistListEntry(
     onPlaylistClick: (Long) -> Unit,
-    onSettingsClick: () -> Unit,
     onAddToHomeScreen: ((PlaylistSummary) -> Unit)? = null,
 ) {
     entry<PlaylistListRoute> {
         val output = PlaylistListViewModel.Output(
             openPlaylist = onPlaylistClick,
-            openSettings = onSettingsClick,
         )
         val viewModel = koinViewModel<PlaylistListViewModel>(
             parameters = { parametersOf(output) },

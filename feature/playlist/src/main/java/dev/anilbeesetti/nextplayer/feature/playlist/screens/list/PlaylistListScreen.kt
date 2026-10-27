@@ -98,17 +98,6 @@ internal fun PlaylistListScreenContent(
             NextTopAppBar(
                 title = stringResource(R.string.playlists),
                 fontWeight = FontWeight.Bold,
-                actions = {
-                    IconButton(
-                        onClick = { onAction(PlaylistUiAction.OnSettingsClick) },
-                        modifier = Modifier.tvFocusRing(),
-                    ) {
-                        Icon(
-                            imageVector = NextIcons.Settings,
-                            contentDescription = stringResource(R.string.settings),
-                        )
-                    }
-                },
             )
         },
         containerColor = MaterialTheme.colorScheme.surfaceContainer,

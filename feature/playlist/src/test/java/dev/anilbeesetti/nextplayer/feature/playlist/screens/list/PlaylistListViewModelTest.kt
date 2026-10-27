@@ -147,7 +147,6 @@ class PlaylistListViewModelTest {
         systemService = systemService,
         output = PlaylistListViewModel.Output(
             openPlaylist = openedIds::add,
-            openSettings = {},
         ),
     )
 

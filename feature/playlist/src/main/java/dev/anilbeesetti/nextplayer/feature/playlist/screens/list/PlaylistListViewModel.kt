@@ -36,7 +36,7 @@ class PlaylistListViewModel(
     @InjectedParam internal var output: Output,
 ) : MviViewModel<PlaylistListUiState, PlaylistUiAction>() {
 
-    data class Output(val openPlaylist: (Long) -> Unit, val openSettings: () -> Unit)
+    data class Output(val openPlaylist: (Long) -> Unit)
 
     private var linkedCreationJob: Job? = null
 
@@ -58,8 +58,6 @@ class PlaylistListViewModel(
             is PlaylistUiAction.Synchronize -> synchronize()
 
             is PlaylistUiAction.CreateM3UFile -> createM3UFile(action.uri)
-
-            is PlaylistUiAction.OnSettingsClick -> output.openSettings()
 
             is PlaylistUiAction.OnPlaylistClick -> output.openPlaylist(action.playlist.id)
 
@@ -304,8 +302,6 @@ data class PlaylistListUiState(
 sealed interface PlaylistUiAction {
     data object Synchronize : PlaylistUiAction
     data class CreateM3UFile(val uri: Uri) : PlaylistUiAction
-
-    data object OnSettingsClick : PlaylistUiAction
     data class OnPlaylistClick(val playlist: PlaylistSummary) : PlaylistUiAction
     data object ShowCreationChooser : PlaylistUiAction
     data object ChooseLocalPlaylist : PlaylistUiAction

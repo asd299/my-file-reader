@@ -80,7 +80,6 @@ import dev.anilbeesetti.nextplayer.navigation.networkNavGraph
 import dev.anilbeesetti.nextplayer.navigation.openPlaylist
 import dev.anilbeesetti.nextplayer.navigation.playlistNavGraph
 import dev.anilbeesetti.nextplayer.navigation.rememberTopLevelNavState
-import dev.anilbeesetti.nextplayer.navigation.settingsNavGraph
 import org.koin.android.ext.android.inject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -176,7 +175,6 @@ class MainActivity : FragmentActivity() {
                             context = this@MainActivity,
                             backStack = moreStack,
                         )
-                        settingsNavGraph(backStack = navState.currentStack)
                     }
 
                     val topLevelFabStates =
