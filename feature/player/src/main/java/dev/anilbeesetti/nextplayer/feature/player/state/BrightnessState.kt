@@ -16,6 +16,7 @@ import androidx.core.util.Consumer
 import dev.anilbeesetti.nextplayer.feature.player.PlayerActivity
 import dev.anilbeesetti.nextplayer.feature.player.extensions.brightnessPercentage
 import dev.anilbeesetti.nextplayer.feature.player.extensions.currentBrightness
+import kotlin.math.roundToInt
 
 @Composable
 fun rememberBrightnessState(): BrightnessState {
@@ -36,23 +37,35 @@ class BrightnessState(private val activity: PlayerActivity) {
     var brightnessPercentage: Int by mutableIntStateOf(activity.brightnessPercentage)
         private set
 
-    fun updateBrightnessPercentage(percentage: Int) {
+    /** Applies [percentage] of the full brightness range, keeping the value continuous. */
+    fun updateBrightnessPercentage(percentage: Float) {
         setBrightness(
             brightness =
                 percentage.coerceIn(
-                    minimumValue = 0,
-                    maximumValue = 100,
-                ) * maxBrightness / 100,
+                    minimumValue = 0f,
+                    maximumValue = PERCENTAGE_MAX,
+                ) / PERCENTAGE_MAX * maxBrightness,
         )
     }
 
     fun setBrightness(brightness: Float) {
-        val windowAttributes = activity.window.attributes
-        windowAttributes.screenBrightness = brightness.coerceIn(
+        val clampedBrightness = brightness.coerceIn(
             minimumValue = 0f,
             maximumValue = maxBrightness,
         )
+        val windowAttributes = activity.window.attributes
+        windowAttributes.screenBrightness = clampedBrightness
         activity.window.attributes = windowAttributes
+        currentBrightness = clampedBrightness
+        brightnessPercentage = (clampedBrightness * PERCENTAGE_MAX).roundToInt()
+    }
+
+    /**
+     * Pins the window brightness to the level currently shown on screen so that the brightness
+     * gesture starts from the real value instead of the unspecified window default.
+     */
+    fun applyCurrentBrightness() {
+        setBrightness(brightness = activity.currentBrightness)
     }
 
     fun handleListeners(disposableEffectScope: DisposableEffectScope): DisposableEffectResult =
@@ -71,4 +84,8 @@ class BrightnessState(private val activity: PlayerActivity) {
                 )
             }
         }
+
+    private companion object {
+        private const val PERCENTAGE_MAX = 100f
+    }
 }

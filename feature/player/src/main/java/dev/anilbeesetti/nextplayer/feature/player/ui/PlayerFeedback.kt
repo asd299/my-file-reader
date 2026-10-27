@@ -137,7 +137,7 @@ internal fun BoxScope.PlayerGestureIndicators(tapGestureState: TapGestureState) 
                 Text(
                     text = stringResource(
                         coreUiR.string.fast_playback_speed,
-                        tapGestureState.longPressSpeed,
+                        tapGestureState.currentLongPressSpeed,
                     ),
                     style = MaterialTheme.typography.labelLarge,
                 )

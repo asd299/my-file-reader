@@ -29,6 +29,7 @@ import androidx.media3.session.MediaController
 import dev.anilbeesetti.nextplayer.feature.player.service.getIsLoudnessGainSupported
 import dev.anilbeesetti.nextplayer.feature.player.service.getLoudnessGain
 import dev.anilbeesetti.nextplayer.feature.player.service.setLoudnessGain
+import kotlin.math.roundToInt
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -82,6 +83,10 @@ class VolumeState(
     var volumePercentage: Int by mutableIntStateOf(value = calculateVolumePercentage())
         private set
 
+    /** Continuous volume level in percent, used to keep gesture feedback smooth. */
+    val preciseVolumePercentage: Float
+        get() = currentVolume.toFloat() / systemMaxVolume * MAX_VOLUME_PERCENTAGE_NORMAL
+
     fun syncWithSystem() {
         if (currentVolume > systemMaxVolume) return
         val systemVolume = audioManager.currentStreamVolume
@@ -91,13 +96,17 @@ class VolumeState(
         }
     }
 
-    fun updateVolumePercentage(percentage: Int) {
-        val maxPercentage = maxVolumePercentage
+    fun updateVolumePercentage(percentage: Float) {
         val clampedPercentage = percentage.coerceIn(
-            minimumValue = 0,
-            maximumValue = maxPercentage,
+            minimumValue = 0f,
+            maximumValue = maxVolumePercentage.toFloat(),
         )
-        val targetVolume = (clampedPercentage * systemMaxVolume) / MAX_VOLUME_PERCENTAGE_NORMAL
+        val targetVolume = (clampedPercentage * systemMaxVolume / MAX_VOLUME_PERCENTAGE_NORMAL)
+            .roundToInt()
+
+        // The stream volume only has a few discrete steps, so skip redundant system calls that
+        // would otherwise make the gesture feel jumpy.
+        if (targetVolume == currentVolume) return
 
         setVolume(volume = targetVolume)
     }

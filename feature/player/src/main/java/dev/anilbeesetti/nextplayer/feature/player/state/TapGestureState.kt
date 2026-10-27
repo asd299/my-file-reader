@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,6 +15,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.IntSize
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
+import dev.anilbeesetti.nextplayer.core.common.extensions.round
 import dev.anilbeesetti.nextplayer.core.model.DoubleTapGesture
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
@@ -56,9 +58,12 @@ class TapGestureState(
 ) {
     var seekMillis by mutableLongStateOf(value = 0L)
     var isLongPressGestureInAction by mutableStateOf(value = false)
+    var currentLongPressSpeed by mutableFloatStateOf(value = longPressSpeed)
+        private set
 
     private var resetJob: Job? = null
     private var currentSpeed: Float = player.playbackParameters.speed
+    private var longPressSpeedDragDp: Float = 0f
 
     fun handleDoubleTap(offset: Offset, size: IntSize) {
         if (!player.isCurrentMediaItemSeekable) return
@@ -115,18 +120,46 @@ class TapGestureState(
         resetDoubleTapSeekState()
     }
 
+    /**
+     * Starts the temporary long-press playback speed, which can be adjusted by vertical dragging.
+     */
     fun handleLongPress(offset: Offset) {
         if (!useLongPressGesture) return
         if (!player.isPlaying) return
 
         isLongPressGestureInAction = true
         currentSpeed = player.playbackParameters.speed
+        currentLongPressSpeed = longPressSpeed
+        longPressSpeedDragDp = 0f
         player.setPlaybackSpeed(longPressSpeed)
+    }
+
+    /**
+     * Adjusts the temporary long-press playback speed while the finger slides vertically.
+     * Sliding up increases the speed, sliding down decreases it.
+     */
+    fun handleLongPressSpeedDrag(dragAmountDp: Float) {
+        if (!isLongPressGestureInAction) return
+
+        longPressSpeedDragDp += dragAmountDp
+        val speedSteps = (longPressSpeedDragDp / DRAG_DP_PER_SPEED_STEP).toInt()
+        val newSpeed = (longPressSpeed - speedSteps * SPEED_STEP)
+            .coerceIn(
+                minimumValue = MIN_LONG_PRESS_SPEED,
+                maximumValue = MAX_LONG_PRESS_SPEED,
+            )
+            .round(decimalPlaces = 2)
+
+        if (newSpeed == currentLongPressSpeed) return
+
+        currentLongPressSpeed = newSpeed
+        player.setPlaybackSpeed(newSpeed)
     }
 
     fun handleOnLongPressRelease() {
         if (isLongPressGestureInAction) {
             isLongPressGestureInAction = false
+            longPressSpeedDragDp = 0f
             player.setPlaybackSpeed(currentSpeed)
         }
     }
@@ -137,6 +170,13 @@ class TapGestureState(
             delay(750.milliseconds)
             seekMillis = 0L
         }
+    }
+
+    companion object {
+        private const val SPEED_STEP = 0.25f
+        private const val DRAG_DP_PER_SPEED_STEP = 24f
+        private const val MIN_LONG_PRESS_SPEED = 0.25f
+        private const val MAX_LONG_PRESS_SPEED = 8.0f
     }
 }
 

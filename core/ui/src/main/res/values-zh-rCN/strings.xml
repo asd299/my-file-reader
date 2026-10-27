@@ -75,6 +75,7 @@
     <string name="off">关</string>
     <string name="on">开</string>
     <string name="play_pause">播放/暂停</string>
+    <string name="replay_video">重播</string>
     <string name="none">无</string>
     <string name="auto">自动</string>
     <string name="enable">启用</string>

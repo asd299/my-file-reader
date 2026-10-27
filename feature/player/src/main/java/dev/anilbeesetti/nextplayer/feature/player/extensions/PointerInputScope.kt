@@ -13,6 +13,7 @@ import androidx.compose.foundation.gestures.horizontalDrag
 import androidx.compose.foundation.gestures.verticalDrag
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerEventTimeoutCancellationException
 import androidx.compose.ui.input.pointer.PointerInputChange
 import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.positionChange
@@ -219,6 +220,66 @@ suspend fun PointerInputScope.detectCustomVerticalDragGestures(
             } else {
                 onDragCancel()
             }
+        }
+    }
+}
+
+/**
+ * Detects a long press that keeps tracking the pointer until it is released.
+ *
+ * When the pointer stays down for [androidx.compose.ui.platform.ViewConfiguration.longPressTimeoutMillis]
+ * without moving beyond touch slop, [onLongPressStart] is invoked with the press position. The
+ * following pointer events are consumed so that taps and other gesture detectors do not react to the
+ * same press. [onLongPressEnd] is invoked once the pointer is released or the gesture is cancelled.
+ */
+suspend fun PointerInputScope.detectLongPressGestures(
+    pass: PointerEventPass = PointerEventPass.Main,
+    onLongPressStart: (Offset) -> Unit,
+    onLongPressDrag: (dragAmount: Float) -> Unit,
+    onLongPressEnd: () -> Unit,
+) {
+    awaitEachGesture {
+        val down = awaitFirstDown(
+            requireUnconsumed = false,
+            pass = pass,
+        )
+        val pointerId = down.id
+        val touchSlop = viewConfiguration.touchSlop
+        var longPressTriggered = false
+
+        try {
+            withTimeout(viewConfiguration.longPressTimeoutMillis) {
+                while (true) {
+                    val event = awaitPointerEvent(pass = pass)
+                    val change = event.changes.firstOrNull { it.id == pointerId } ?: break
+                    if (!change.pressed) break
+                    if (change.isConsumed) break
+                    if (event.changes.count { it.pressed } > 1) break
+                    if ((change.position - down.position).getDistance() > touchSlop) break
+                }
+            }
+        } catch (_: PointerEventTimeoutCancellationException) {
+            longPressTriggered = true
+        }
+
+        if (!longPressTriggered) return@awaitEachGesture
+
+        onLongPressStart(down.position)
+        var lastY = down.position.y
+        try {
+            while (true) {
+                val event = awaitPointerEvent(pass = pass)
+                val change = event.changes.firstOrNull { it.id == pointerId } ?: break
+                val dragAmount = change.position.y - lastY
+                lastY = change.position.y
+                if (!change.isConsumed && dragAmount != 0f) {
+                    onLongPressDrag(dragAmount)
+                    change.consume()
+                }
+                if (!change.pressed) break
+            }
+        } finally {
+            onLongPressEnd()
         }
     }
 }

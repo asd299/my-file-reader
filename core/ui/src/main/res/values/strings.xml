@@ -86,6 +86,7 @@
     <string name="off">Off</string>
     <string name="on">On</string>
     <string name="play_pause">Play/Pause</string>
+    <string name="replay_video">Replay</string>
     <string name="ff_rewind">Fast forward/Rewind</string>
     <string name="play_pause_ff_rewind">Play/Pause and Fast forward/Rewind</string>
     <string name="none">None</string>
