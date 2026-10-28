@@ -79,6 +79,10 @@
 
 `release-with-debug-signing` 变体在 `app/build/outputs/apk/release-with-debug-signing/` 下产出通用包与按 ABI 拆分的安装包（arm64-v8a、armeabi-v7a、x86、x86_64）。
 
+## 依赖与版本
+
+所有基础项目、参考项目与依赖的当前版本集中在 [dependencies/README.md](dependencies/README.md)，依赖声明统一位于 [gradle/libs.versions.toml](gradle/libs.versions.toml)。升级流程见该文档末尾。
+
 ## 项目结构
 
 - `app/`：应用入口（依赖注入、崩溃处理、文件共享），不包含任何页面
