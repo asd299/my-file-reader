@@ -509,6 +509,12 @@
     <string name="playlist">播放列表</string>
     <string name="media_details">播放详情</string>
     <string name="image_viewer_close">关闭</string>
+    <string name="image_viewer_rotate">旋转</string>
+    <string name="image_viewer_start_slideshow">开始幻灯片</string>
+    <string name="image_viewer_stop_slideshow">停止幻灯片</string>
+    <string name="image_viewer_name">名称</string>
+    <string name="image_viewer_size">文件大小</string>
+    <string name="details_index">序号</string>
     <string name="gallery_project">参考项目</string>
     <string name="gallery_project_thanks">图片查看功能参考：%1$s</string>
     <string name="press_back_again_to_exit">再按一次退出</string>

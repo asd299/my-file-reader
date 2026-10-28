@@ -160,7 +160,7 @@ private fun rememberLocalFilePath(uri: Uri?): String? {
 private fun rawPathOf(uri: Uri): String? =
     uri.path.takeIf { uri.scheme == ContentResolver.SCHEME_FILE }
 
-private fun resolveLocalPath(context: Context, uri: Uri): String? {
+internal fun resolveLocalPath(context: Context, uri: Uri): String? {
     if (uri.scheme == ContentResolver.SCHEME_FILE) return uri.path
     if (uri.scheme != ContentResolver.SCHEME_CONTENT) return null
     val projection = arrayOf(

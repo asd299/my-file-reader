@@ -547,6 +547,12 @@
     <string name="playlist">Playlist</string>
     <string name="media_details">Details</string>
     <string name="image_viewer_close">Close</string>
+    <string name="image_viewer_rotate">Rotate</string>
+    <string name="image_viewer_start_slideshow">Start slideshow</string>
+    <string name="image_viewer_stop_slideshow">Stop slideshow</string>
+    <string name="image_viewer_name">Name</string>
+    <string name="image_viewer_size">File size</string>
+    <string name="details_index">Position</string>
     <string name="gallery_project">Referenced project</string>
     <string name="gallery_project_thanks">Image viewing inspired by: %1$s</string>
     <string name="details_title">Title</string>

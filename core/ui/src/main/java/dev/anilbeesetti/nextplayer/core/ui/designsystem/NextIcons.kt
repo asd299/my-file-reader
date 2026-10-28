@@ -64,6 +64,7 @@ import androidx.compose.material.icons.rounded.MoreVert
 import androidx.compose.material.icons.rounded.Movie
 import androidx.compose.material.icons.rounded.Palette
 import androidx.compose.material.icons.rounded.PanToolAlt
+import androidx.compose.material.icons.rounded.Pause
 import androidx.compose.material.icons.rounded.PictureInPictureAlt
 import androidx.compose.material.icons.rounded.Pinch
 import androidx.compose.material.icons.rounded.PlayArrow
@@ -72,6 +73,7 @@ import androidx.compose.material.icons.rounded.PriorityHigh
 import androidx.compose.material.icons.rounded.RadioButtonUnchecked
 import androidx.compose.material.icons.rounded.Replay10
 import androidx.compose.material.icons.rounded.ResetTv
+import androidx.compose.material.icons.rounded.Rotate90DegreesCw
 import androidx.compose.material.icons.rounded.ScreenRotationAlt
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SelectAll
@@ -169,6 +171,8 @@ object NextIcons {
     val Close = Icons.Rounded.Close
     val History = Icons.Rounded.History
     val Pan = Icons.Rounded.PanToolAlt
+    val Pause = Icons.Rounded.Pause
+    val Rotate90 = Icons.Rounded.Rotate90DegreesCw
     val HideSource = Icons.Rounded.HideSource
     val SelectAll = Icons.Rounded.SelectAll
     val DeselectAll = Icons.Rounded.Deselect
