@@ -508,6 +508,7 @@
     <string name="chapters">章节</string>
     <string name="playlist">播放列表</string>
     <string name="media_details">播放详情</string>
+    <string name="press_back_again_to_exit">再按一次退出</string>
     <string name="details_title">标题</string>
     <string name="details_duration">时长</string>
     <string name="details_resolution">分辨率</string>

@@ -1,5 +1,6 @@
 package dev.anilbeesetti.nextplayer.feature.player
 
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.annotation.OptIn
 import androidx.compose.animation.AnimatedVisibility
@@ -31,6 +32,7 @@ import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.ui.compose.state.rememberProgressStateWithTickInterval
 import dev.anilbeesetti.nextplayer.core.common.extensions.isTelevision
+import dev.anilbeesetti.nextplayer.core.ui.R as coreUiR
 import dev.anilbeesetti.nextplayer.core.ui.components.requestFocusUntilLanded
 import dev.anilbeesetti.nextplayer.core.ui.components.thenIf
 import dev.anilbeesetti.nextplayer.feature.player.state.ControlsVisibilityState
@@ -46,6 +48,7 @@ import dev.anilbeesetti.nextplayer.feature.player.ui.OverlayShowView
 import dev.anilbeesetti.nextplayer.feature.player.ui.OverlayView
 import dev.anilbeesetti.nextplayer.feature.player.ui.PlayerGestureIndicators
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 
 /** Controls and overlays shared by live playback and the previewable content. */
 @OptIn(UnstableApi::class)
@@ -88,6 +91,14 @@ internal fun MediaPlayerControls(
 
     val context = LocalContext.current
     val isTv = remember { context.isTelevision }
+    // Leaving the player needs two back presses so a stray tap doesn't interrupt playback.
+    var backPressedOnce by remember { mutableStateOf(value = false) }
+    LaunchedEffect(backPressedOnce) {
+        if (backPressedOnce) {
+            delay(timeMillis = BACK_PRESS_TIMEOUT_MS)
+            backPressedOnce = false
+        }
+    }
     val rootFocusRequester = remember { FocusRequester() }
     val middleControlsFocusRequester = remember { FocusRequester() }
     val unlockFocusRequester = remember { FocusRequester() }
@@ -230,7 +241,19 @@ internal fun MediaPlayerControls(
             isTv && controlsVisibilityState.controlsVisible ->
                 controlsVisibilityState.hideControls()
 
+            !backPressedOnce -> {
+                backPressedOnce = true
+                Toast.makeText(
+                    context,
+                    coreUiR.string.press_back_again_to_exit,
+                    Toast.LENGTH_SHORT,
+                ).show()
+            }
+
             else -> onAction(PlayerAction.NavigateUp)
         }
     }
 }
+
+/** How long the first back press is remembered before it expires. */
+private const val BACK_PRESS_TIMEOUT_MS = 2_000L

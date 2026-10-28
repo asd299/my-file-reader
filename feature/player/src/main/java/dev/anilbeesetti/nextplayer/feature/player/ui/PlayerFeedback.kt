@@ -3,6 +3,7 @@ package dev.anilbeesetti.nextplayer.feature.player.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -12,7 +13,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.displayCutoutPadding
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -29,9 +29,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -199,8 +200,8 @@ internal fun BoxScope.PlayerVerticalGestureIndicators(
 }
 
 /**
- * Shows the seek gesture on a timeline of the whole video, so both the target position and the
- * total duration stay visible while the user drags.
+ * Shows the seek gesture on a timeline of the whole video: what is being skipped, where playback
+ * will land and how far that is through the video.
  */
 @Composable
 internal fun SeekGestureIndicator(positionMs: Long, durationMs: Long, seekAmountMs: Long) {
@@ -216,49 +217,94 @@ internal fun SeekGestureIndicator(positionMs: Long, durationMs: Long, seekAmount
     val sign = if (seekAmountMs < 0) "-" else "+"
 
     Surface(
-        modifier = Modifier.widthIn(max = 360.dp),
-        shape = RoundedCornerShape(16.dp),
-        color = Color.Black.copy(alpha = 0.6f),
+        modifier = Modifier.widthIn(
+            min = 240.dp,
+            max = 380.dp,
+        ),
+        shape = RoundedCornerShape(20.dp),
+        color = Color.Black.copy(alpha = 0.75f),
     ) {
         Column(
             modifier = Modifier.padding(
                 horizontal = 20.dp,
-                vertical = 14.dp,
+                vertical = 16.dp,
             ),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Text(
-                    text = sign + abs(n = seekAmountMs).milliseconds.formatted(),
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                )
+                Surface(
+                    shape = CircleShape,
+                    color = Color.White.copy(alpha = 0.16f),
+                ) {
+                    Text(
+                        text = sign + abs(n = seekAmountMs).milliseconds.formatted(),
+                        modifier = Modifier.padding(
+                            horizontal = 12.dp,
+                            vertical = 4.dp,
+                        ),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        color = Color.White,
+                    )
+                }
                 Text(
                     text = positionMs.coerceAtLeast(minimumValue = 0L).milliseconds.formatted() +
                         " / " +
                         (totalMs?.milliseconds?.formatted() ?: "--:--"),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.85f),
+                    color = Color.White.copy(alpha = 0.8f),
                 )
             }
-            Box(
+            Canvas(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(height = 4.dp)
-                    .clip(shape = CircleShape)
-                    .background(color = Color.White.copy(alpha = 0.3f)),
+                    .height(height = 16.dp),
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth(fraction = progress)
-                        .fillMaxHeight()
-                        .clip(shape = CircleShape)
-                        .background(color = Color.White),
+                val strokeWidth = 6.dp.toPx()
+                val edgeInset = strokeWidth / 2 + 2.dp.toPx()
+                val centerY = size.height / 2
+                val startX = edgeInset
+                val endX = size.width - edgeInset
+                val thumbX = startX + (endX - startX) * progress
+                drawLine(
+                    color = Color.White.copy(alpha = 0.25f),
+                    start = Offset(
+                        x = startX,
+                        y = centerY,
+                    ),
+                    end = Offset(
+                        x = endX,
+                        y = centerY,
+                    ),
+                    strokeWidth = strokeWidth,
+                    cap = StrokeCap.Round,
+                )
+                if (progress > 0f) {
+                    drawLine(
+                        color = Color.White,
+                        start = Offset(
+                            x = startX,
+                            y = centerY,
+                        ),
+                        end = Offset(
+                            x = thumbX,
+                            y = centerY,
+                        ),
+                        strokeWidth = strokeWidth,
+                        cap = StrokeCap.Round,
+                    )
+                }
+                drawCircle(
+                    color = Color.White,
+                    radius = 5.dp.toPx(),
+                    center = Offset(
+                        x = thumbX,
+                        y = centerY,
+                    ),
                 )
             }
         }
