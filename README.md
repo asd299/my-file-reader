@@ -2,7 +2,7 @@
 
 # FileViewer（基于 Next Player 的精简播放器）
 
-一个只保留播放器的原生 Android 视频播放器，基于 [anilbeesetti/nextplayer](https://github.com/anilbeesetti/nextplayer) 二次开发。
+一个只保留播放器与图片查看的原生 Android 应用，基于 [anilbeesetti/nextplayer](https://github.com/anilbeesetti/nextplayer) 二次开发，图片查看参考 [FossifyOrg/Gallery](https://github.com/FossifyOrg/Gallery)。
 
 本项目基于 Next Player 做了彻底精简：**删除播放器之外的所有界面**（主页、媒体库、播放列表、网络存储管理、更多/历史/回收站等），**不提供桌面启动图标**，只能由其他应用通过“打开方式 / 分享”等方式调用播放器。
 
@@ -13,6 +13,8 @@
 - 本地文件与 `content://` 视频
 - `http/https`、`rtsp/rtp/rtmp` 等流媒体地址
 - `smb`、`ftp`、`sftp`、`webdav` 网络存储地址
+
+图片同理：以 `image/*` 的 `VIEW` / `SEND` / `SEND_MULTIPLE` 意图打开时，由图片查看界面承载——双指缩放（1x～8x）、拖动平移、双击放大或复位，多张图片一起分享时左右滑动切换，点击画面显示/隐藏顶部栏（文件名、序号、关闭）。
 
 由于没有主界面，安装后在桌面不会出现图标，需要通过其他应用的“打开方式”来使用。
 
@@ -27,6 +29,7 @@
 - **长按上下滑动实时调速**：长按画面后上下滑动连续调整速度（0.25x～8x），松手恢复原速。
 - **音量调节更顺滑**：音量手势改为连续值控制，并对系统音量离散步进做去抖处理。
 - **亮度调节修复**：亮度不再从 100% 开始，进入播放器时以系统当前真实亮度为起点。
+- **图片查看**：新增 `ImageViewerActivity`，支持双指缩放、拖动、双击缩放、多图左右切换，图片处理思路参考 Fossify Gallery。
 
 ## 功能特性
 

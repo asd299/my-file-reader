@@ -241,7 +241,7 @@
     <string name="loop_mode_off">Loop: Off</string>
     <string name="loop_mode_one">Loop: One</string>
     <string name="loop_mode_all">Loop: All</string>
-    <string name="app_developer" translatable="false">anilbeesetti</string>
+    <string name="app_developer" translatable="false">asd299</string>
     <string name="by">by %1$s</string>
     <string name="links">Links</string>
     <string name="project_repository">Project repository</string>
@@ -546,6 +546,9 @@
     <string name="chapters">Chapters</string>
     <string name="playlist">Playlist</string>
     <string name="media_details">Details</string>
+    <string name="image_viewer_close">Close</string>
+    <string name="gallery_project">Referenced project</string>
+    <string name="gallery_project_thanks">Image viewing inspired by: %1$s</string>
     <string name="details_title">Title</string>
     <string name="details_duration">Duration</string>
     <string name="details_resolution">Resolution</string>

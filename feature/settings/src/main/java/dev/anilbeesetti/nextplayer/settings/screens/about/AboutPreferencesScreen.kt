@@ -56,8 +56,9 @@ import dev.anilbeesetti.nextplayer.core.ui.components.tvFocusDown
 import dev.anilbeesetti.nextplayer.core.ui.components.tvListFocus
 import dev.anilbeesetti.nextplayer.core.ui.designsystem.NextIcons
 
-private const val PROJECT_URL = "https://github.com/asd299/nextplayer"
+private const val PROJECT_URL = "https://github.com/asd299/FileViewer"
 private const val ORIGINAL_PROJECT_URL = "https://github.com/anilbeesetti/nextplayer"
+private const val GALLERY_PROJECT_URL = "https://github.com/FossifyOrg/Gallery"
 
 @Composable
 fun AboutPreferencesScreen(viewModel: AboutPreferencesViewModel) {
@@ -138,6 +139,20 @@ private fun AboutPreferencesScreenContent(
                     onClick = {
                         uriHandler.openUriOrShowToast(
                             uri = ORIGINAL_PROJECT_URL,
+                            context = context,
+                        )
+                    },
+                )
+                ClickablePreferenceItem(
+                    title = stringResource(R.string.gallery_project),
+                    description = stringResource(
+                        R.string.gallery_project_thanks,
+                        GALLERY_PROJECT_URL,
+                    ),
+                    icon = ImageVector.vectorResource(R.drawable.ic_github),
+                    onClick = {
+                        uriHandler.openUriOrShowToast(
+                            uri = GALLERY_PROJECT_URL,
                             context = context,
                         )
                     },
