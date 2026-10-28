@@ -1,10 +1,10 @@
 ![Next player banner](fastlane/metadata/android/en-US/images/featureGraphic.png)
 
-# Next Player（播放器精简定制版）
+# FileViewer（基于 Next Player 的精简播放器）
 
 一个只保留播放器的原生 Android 视频播放器，基于 [anilbeesetti/nextplayer](https://github.com/anilbeesetti/nextplayer) 二次开发。
 
-本分支做了一次彻底精简：**删除播放器之外的所有界面**（主页、媒体库、播放列表、网络存储管理、更多/历史/回收站等），**不提供桌面启动图标**，只能由其他应用通过“打开方式 / 分享”等方式调用播放器。
+本项目基于 Next Player 做了彻底精简：**删除播放器之外的所有界面**（主页、媒体库、播放列表、网络存储管理、更多/历史/回收站等），**不提供桌面启动图标**，只能由其他应用通过“打开方式 / 分享”等方式调用播放器。
 
 ## 使用方式
 
