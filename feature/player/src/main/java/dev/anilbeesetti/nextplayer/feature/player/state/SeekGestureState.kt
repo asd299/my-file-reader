@@ -56,12 +56,13 @@ class SeekGestureState(
         private set
 
     private var seekStartX = 0f
+    private var resumePlaybackAfterSeek = false
 
     fun onSeek(value: Long) {
         if (!isSeeking) {
             isSeeking = true
+            beginSeek()
             seekStartPosition = player.currentPosition
-            player.setIsScrubbingModeEnabled(enabled = true)
         }
 
         seekAmount = (value - seekStartPosition!!).coerceIn(
@@ -90,7 +91,7 @@ class SeekGestureState(
         seekStartX = offset.x
         seekStartPosition = player.currentPosition
 
-        player.setIsScrubbingModeEnabled(enabled = true)
+        beginSeek()
     }
 
     @OptIn(UnstableApi::class)
@@ -121,8 +122,24 @@ class SeekGestureState(
         reset()
     }
 
+    private fun beginSeek() {
+        player.setIsScrubbingModeEnabled(enabled = true)
+        // Scrubbing mode only works on players that opted in, and it does not stop audio, so pause
+        // explicitly while the user is still dragging instead of playing through the seek.
+        if (player.playWhenReady) {
+            resumePlaybackAfterSeek = true
+            player.pause()
+        }
+    }
+
     private fun reset() {
-        if (isSeeking) player.setIsScrubbingModeEnabled(enabled = false)
+        if (isSeeking) {
+            player.setIsScrubbingModeEnabled(enabled = false)
+            if (resumePlaybackAfterSeek) {
+                resumePlaybackAfterSeek = false
+                player.play()
+            }
+        }
         isSeeking = false
         seekStartPosition = null
         seekAmount = null

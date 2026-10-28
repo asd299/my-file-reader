@@ -13,7 +13,7 @@ import org.koin.core.annotation.KoinViewModel
 class AboutPreferencesViewModel(context: Context, @InjectedParam internal var output: Output) :
     MviViewModel<AboutPreferencesUiState, AboutPreferencesAction>() {
 
-    data class Output(val navigateUp: () -> Unit, val openLibraries: () -> Unit)
+    data class Output(val navigateUp: () -> Unit)
 
     private val stateInternal =
         MutableStateFlow(value = AboutPreferencesUiState(appVersion = context.appVersion()))
@@ -22,7 +22,6 @@ class AboutPreferencesViewModel(context: Context, @InjectedParam internal var ou
     override fun onAction(action: AboutPreferencesAction) {
         when (action) {
             is AboutPreferencesAction.NavigateUp -> output.navigateUp()
-            is AboutPreferencesAction.OpenLibraries -> output.openLibraries()
         }
     }
 }
@@ -31,7 +30,6 @@ data class AboutPreferencesUiState(val appVersion: String)
 
 sealed interface AboutPreferencesAction {
     data object NavigateUp : AboutPreferencesAction
-    data object OpenLibraries : AboutPreferencesAction
 }
 
 private fun Context.appVersion(): String {

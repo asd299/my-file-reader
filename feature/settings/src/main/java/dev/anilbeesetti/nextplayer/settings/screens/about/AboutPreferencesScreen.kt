@@ -1,6 +1,5 @@
 package dev.anilbeesetti.nextplayer.settings.screens.about
 
-import android.content.ClipData
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.animation.core.RepeatMode
@@ -12,19 +11,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconButton
@@ -36,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -46,12 +38,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
@@ -66,12 +55,9 @@ import dev.anilbeesetti.nextplayer.core.ui.components.rememberTvListFocusRequest
 import dev.anilbeesetti.nextplayer.core.ui.components.tvFocusDown
 import dev.anilbeesetti.nextplayer.core.ui.components.tvListFocus
 import dev.anilbeesetti.nextplayer.core.ui.designsystem.NextIcons
-import kotlinx.coroutines.launch
 
-private const val GITHUB_URL = "https://github.com/anilbeesetti/nextplayer"
-private const val KOFI_URL = "https://ko-fi.com/anilbeesetti"
-private const val PAYPAL_URL = "https://paypal.me/AnilBeesetti"
-private const val UPI_ID = "anilbeesetti10@oksbi"
+private const val PROJECT_URL = "https://github.com/asd299/nextplayer"
+private const val ORIGINAL_PROJECT_URL = "https://github.com/anilbeesetti/nextplayer"
 
 @Composable
 fun AboutPreferencesScreen(viewModel: AboutPreferencesViewModel) {
@@ -93,10 +79,8 @@ private fun AboutPreferencesScreenContent(
 ) {
     val context = LocalContext.current
     val uriHandler = LocalUriHandler.current
-    val clipboard = LocalClipboard.current
-    val scope = rememberCoroutineScope()
-
     val listFocusRequester = rememberTvListFocusRequester()
+
     Scaffold(
         topBar = {
             NextTopAppBar(
@@ -127,69 +111,35 @@ private fun AboutPreferencesScreenContent(
                 .padding(horizontal = 16.dp)
                 .padding(vertical = 16.dp),
         ) {
-            AboutApp(
-                appVersion = state.appVersion,
-                onGithubClick = {
-                    uriHandler.openUriOrShowToast(
-                        uri = GITHUB_URL,
-                        context = context,
-                    )
-                },
-                onLibrariesClick = { onAction(AboutPreferencesAction.OpenLibraries) },
-            )
-            ListSectionTitle(text = stringResource(id = R.string.donate))
+            AboutApp(appVersion = state.appVersion)
+            ListSectionTitle(text = stringResource(id = R.string.links))
             Column(
                 verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
             ) {
                 ClickablePreferenceItem(
-                    title = stringResource(R.string.kofi),
-                    description = stringResource(
-                        R.string.support_the_developer_on,
-                        stringResource(R.string.kofi),
-                    ),
-                    icon = ImageVector.vectorResource(R.drawable.ic_kofi),
+                    title = stringResource(R.string.project_repository),
+                    description = PROJECT_URL,
+                    icon = ImageVector.vectorResource(R.drawable.ic_github),
                     onClick = {
                         uriHandler.openUriOrShowToast(
-                            uri = KOFI_URL,
+                            uri = PROJECT_URL,
                             context = context,
                         )
                     },
                     isFirstItem = true,
                 )
                 ClickablePreferenceItem(
-                    title = stringResource(R.string.paypal),
+                    title = stringResource(R.string.original_project),
                     description = stringResource(
-                        R.string.support_the_developer_on,
-                        stringResource(R.string.paypal),
+                        R.string.original_project_thanks,
+                        ORIGINAL_PROJECT_URL,
                     ),
-                    icon = ImageVector.vectorResource(R.drawable.ic_paypal),
+                    icon = ImageVector.vectorResource(R.drawable.ic_github),
                     onClick = {
                         uriHandler.openUriOrShowToast(
-                            uri = PAYPAL_URL,
+                            uri = ORIGINAL_PROJECT_URL,
                             context = context,
                         )
-                    },
-                )
-                ClickablePreferenceItem(
-                    title = stringResource(R.string.upi),
-                    description = UPI_ID,
-                    icon = ImageVector.vectorResource(R.drawable.ic_upi),
-                    onClick = {
-                        scope.launch {
-                            clipboard.setClipEntry(
-                                clipEntry = ClipEntry(
-                                    ClipData.newPlainText(
-                                        "text",
-                                        UPI_ID,
-                                    ),
-                                ),
-                            )
-                            Toast.makeText(
-                                context,
-                                "copied to clipboard",
-                                Toast.LENGTH_SHORT,
-                            ).show()
-                        }
                     },
                     isLastItem = true,
                 )
@@ -199,12 +149,7 @@ private fun AboutPreferencesScreenContent(
 }
 
 @Composable
-fun AboutApp(
-    appVersion: String,
-    modifier: Modifier = Modifier,
-    onGithubClick: () -> Unit,
-    onLibrariesClick: () -> Unit,
-) {
+fun AboutApp(appVersion: String, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val appIcon = remember { context.appIcon()?.asImageBitmap() }
 
@@ -296,48 +241,6 @@ fun AboutApp(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-            }
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            Button(
-                onClick = onLibrariesClick,
-                colors = ButtonDefaults.buttonColors(
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContentColor = MaterialTheme.colorScheme.onPrimary.copy(alpha = .12f),
-                    containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.8f),
-                    disabledContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = .12f),
-                ),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(52.dp)
-                    .weight(weight = 1f),
-            ) { Text(text = stringResource(R.string.libraries)) }
-            Button(
-                onClick = onGithubClick,
-                colors = ButtonDefaults.buttonColors(
-                    contentColor = MaterialTheme.colorScheme.onTertiary,
-                    disabledContentColor = MaterialTheme.colorScheme.onTertiary.copy(alpha = .12f),
-                    containerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = 0.8f),
-                    disabledContainerColor = MaterialTheme.colorScheme.tertiary.copy(alpha = .12f),
-                ),
-                shape = RoundedCornerShape(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(weight = 1f)
-                    .height(52.dp),
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_github),
-                    contentDescription = null,
-                    modifier = Modifier.size(24.dp),
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(text = stringResource(R.string.github))
             }
         }
     }

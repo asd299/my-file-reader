@@ -211,6 +211,10 @@
     <string name="loop_mode_off">循环：关</string>
     <string name="loop_mode">循环模式</string>
     <string name="donate">捐助</string>
+    <string name="links">相关链接</string>
+    <string name="project_repository">本项目地址</string>
+    <string name="original_project">原项目</string>
+    <string name="original_project_thanks">感谢原项目开发者：%1$s</string>
     <string name="libraries">程序库</string>
     <string name="by">由 %1$s 开发</string>
     <string name="support_the_developer_on">通过 %1$s 支持开发者</string>

@@ -28,6 +28,7 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.robolectric.RobolectricTestRunner
+import org.robolectric.Shadows.shadowOf
 import org.robolectric.annotation.Config
 
 @RunWith(RobolectricTestRunner::class)
@@ -118,13 +119,33 @@ class SeekGestureStateTest {
         composeRule.onNodeWithTag(testTag = "gesture").performTouchInput { cancel() }
     }
 
-    private class TestPlayer : SimpleBasePlayer(Looper.getMainLooper()) {
+    @Test
+    fun seekingPausesPlaybackAndResumesWhenTheSeekEnds() {
+        val player = TestPlayer(playWhenReady = true)
+        val state = SeekGestureState(player = player)
+
+        state.onSeek(value = 5_000)
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertTrue(state.isSeeking)
+        assertFalse(player.playWhenReady)
+
+        state.onSeekEnd()
+        shadowOf(Looper.getMainLooper()).idle()
+
+        assertFalse(state.isSeeking)
+        assertTrue(player.playWhenReady)
+    }
+
+    private class TestPlayer(playWhenReady: Boolean = false) :
+        SimpleBasePlayer(Looper.getMainLooper()) {
         private var state = State.Builder()
             .setAvailableCommands(
                 Player.Commands.Builder().addAll(
                     Player.COMMAND_GET_CURRENT_MEDIA_ITEM,
                     Player.COMMAND_GET_TIMELINE,
                     Player.COMMAND_SEEK_IN_CURRENT_MEDIA_ITEM,
+                    Player.COMMAND_PLAY_PAUSE,
                 ).build(),
             )
             .setPlaylist(
@@ -135,10 +156,22 @@ class SeekGestureStateTest {
                 ),
             )
             .setContentPositionMs(1_000)
+            .setPlayWhenReady(
+                playWhenReady,
+                Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+            )
             .setPlaybackState(Player.STATE_READY)
             .build()
 
         override fun getState(): State = state
+
+        override fun handleSetPlayWhenReady(playWhenReady: Boolean): ListenableFuture<*> {
+            state = state.buildUpon().setPlayWhenReady(
+                playWhenReady,
+                Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
+            ).build()
+            return Futures.immediateVoidFuture()
+        }
 
         override fun handleSeek(
             mediaItemIndex: Int,

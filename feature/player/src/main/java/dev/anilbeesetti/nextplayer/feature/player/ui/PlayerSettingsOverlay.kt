@@ -16,28 +16,18 @@ import androidx.navigation3.ui.NavDisplay
 import dev.anilbeesetti.nextplayer.settings.Setting
 import dev.anilbeesetti.nextplayer.settings.navigation.SettingsRoute
 import dev.anilbeesetti.nextplayer.settings.navigation.aboutPreferencesEntry
-import dev.anilbeesetti.nextplayer.settings.navigation.appearancePreferencesEntry
 import dev.anilbeesetti.nextplayer.settings.navigation.audioPreferencesEntry
-import dev.anilbeesetti.nextplayer.settings.navigation.folderPreferencesEntry
 import dev.anilbeesetti.nextplayer.settings.navigation.generalPreferencesEntry
 import dev.anilbeesetti.nextplayer.settings.navigation.gesturePreferencesEntry
-import dev.anilbeesetti.nextplayer.settings.navigation.librariesEntry
-import dev.anilbeesetti.nextplayer.settings.navigation.mediaLibraryPreferencesEntry
 import dev.anilbeesetti.nextplayer.settings.navigation.navigateToAboutPreferences
-import dev.anilbeesetti.nextplayer.settings.navigation.navigateToAppearancePreferences
 import dev.anilbeesetti.nextplayer.settings.navigation.navigateToAudioPreferences
-import dev.anilbeesetti.nextplayer.settings.navigation.navigateToFolderPreferencesScreen
 import dev.anilbeesetti.nextplayer.settings.navigation.navigateToGeneralPreferences
 import dev.anilbeesetti.nextplayer.settings.navigation.navigateToGesturePreferences
-import dev.anilbeesetti.nextplayer.settings.navigation.navigateToLibraries
-import dev.anilbeesetti.nextplayer.settings.navigation.navigateToMediaLibraryPreferencesScreen
 import dev.anilbeesetti.nextplayer.settings.navigation.navigateToPlayerPreferences
 import dev.anilbeesetti.nextplayer.settings.navigation.navigateToSubtitlePreferences
-import dev.anilbeesetti.nextplayer.settings.navigation.navigateToThumbnailPreferencesScreen
 import dev.anilbeesetti.nextplayer.settings.navigation.playerPreferencesEntry
 import dev.anilbeesetti.nextplayer.settings.navigation.settingsEntry
 import dev.anilbeesetti.nextplayer.settings.navigation.subtitlePreferencesEntry
-import dev.anilbeesetti.nextplayer.settings.navigation.thumbnailPreferencesEntry
 
 /**
  * Full screen settings shown on top of the player, so preferences stay reachable without leaving
@@ -63,43 +53,21 @@ fun PlayerSettingsOverlay(modifier: Modifier = Modifier, onDismiss: () -> Unit) 
                 onNavigateUp = navigateUp,
                 onItemClick = { setting ->
                     when (setting) {
-                        Setting.APPEARANCE -> backStack.navigateToAppearancePreferences()
-
-                        Setting.MEDIA_LIBRARY ->
-                            backStack.navigateToMediaLibraryPreferencesScreen()
-
                         Setting.PLAYER -> backStack.navigateToPlayerPreferences()
-
                         Setting.GESTURES -> backStack.navigateToGesturePreferences()
-
                         Setting.AUDIO -> backStack.navigateToAudioPreferences()
-
                         Setting.SUBTITLE -> backStack.navigateToSubtitlePreferences()
-
                         Setting.GENERAL -> backStack.navigateToGeneralPreferences()
-
                         Setting.ABOUT -> backStack.navigateToAboutPreferences()
                     }
                 },
             )
-            appearancePreferencesEntry(onNavigateUp = navigateUp)
-            mediaLibraryPreferencesEntry(
-                onNavigateUp = navigateUp,
-                onFolderSettingClick = backStack::navigateToFolderPreferencesScreen,
-                onThumbnailSettingClick = backStack::navigateToThumbnailPreferencesScreen,
-            )
-            thumbnailPreferencesEntry(onNavigateUp = navigateUp)
-            folderPreferencesEntry(onNavigateUp = navigateUp)
             playerPreferencesEntry(onNavigateUp = navigateUp)
             gesturePreferencesEntry(onNavigateUp = navigateUp)
             audioPreferencesEntry(onNavigateUp = navigateUp)
             subtitlePreferencesEntry(onNavigateUp = navigateUp)
             generalPreferencesEntry(onNavigateUp = navigateUp)
-            aboutPreferencesEntry(
-                onLibrariesClick = backStack::navigateToLibraries,
-                onNavigateUp = navigateUp,
-            )
-            librariesEntry(onNavigateUp = navigateUp)
+            aboutPreferencesEntry(onNavigateUp = navigateUp)
         },
     )
 
