@@ -82,8 +82,13 @@ class VolumeAndBrightnessGestureState(
             else -> VerticalGesture.VOLUME.takeIf { enableVolumeGesture }
         }
         startingY = offset.y
-        volumeState.syncWithSystem()
-        brightnessState.applyCurrentBrightness()
+        // Only sync the state the current gesture controls: pinning brightness while adjusting
+        // volume made the screen jump to the brightness reported by the system.
+        when (activeGesture) {
+            VerticalGesture.VOLUME -> volumeState.syncWithSystem()
+            VerticalGesture.BRIGHTNESS -> brightnessState.applyCurrentBrightness()
+            null -> Unit
+        }
         startVolumePercentage = volumeState.preciseVolumePercentage
         startBrightnessPercentage = brightnessState.brightnessPercentage.toFloat()
         volumePercentage = startVolumePercentage

@@ -110,6 +110,28 @@ class TapGestureStateTest {
         )
     }
 
+    @Test
+    fun longPressSpeedWorksWhilePlaybackIsPaused() {
+        val player = TestPlayer(playWhenReady = false)
+        val state = createState(player = player)
+
+        state.handleLongPress(offset = Offset.Zero)
+
+        assertTrue(state.isLongPressGestureInAction)
+        assertEquals(
+            2.0f,
+            player.playbackParameters.speed,
+            DELTA,
+        )
+
+        state.handleOnLongPressRelease()
+        assertEquals(
+            1.0f,
+            player.playbackParameters.speed,
+            DELTA,
+        )
+    }
+
     private fun createState(player: Player) = TapGestureState(
         player = player,
         seekIncrementMillis = 10_000,
@@ -119,7 +141,8 @@ class TapGestureStateTest {
         doubleTapGesture = DoubleTapGesture.NONE,
     )
 
-    private class TestPlayer : SimpleBasePlayer(Looper.getMainLooper()) {
+    private class TestPlayer(playWhenReady: Boolean = true) :
+        SimpleBasePlayer(Looper.getMainLooper()) {
         private var state = State.Builder()
             .setAvailableCommands(
                 Player.Commands.Builder().addAll(
@@ -134,7 +157,7 @@ class TapGestureStateTest {
                 ),
             )
             .setPlayWhenReady(
-                true,
+                playWhenReady,
                 Player.PLAY_WHEN_READY_CHANGE_REASON_USER_REQUEST,
             )
             .setPlaybackState(Player.STATE_READY)

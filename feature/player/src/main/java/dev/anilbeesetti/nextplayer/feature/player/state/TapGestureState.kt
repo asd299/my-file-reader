@@ -33,7 +33,13 @@ fun rememberTapGestureState(
     longPressSpeed: Float,
 ): TapGestureState {
     val coroutineScope = rememberCoroutineScope()
-    val tapGestureState = remember {
+    val tapGestureState = remember(
+        player,
+        doubleTapGesture,
+        seekIncrementMillis,
+        useLongPressGesture,
+        longPressSpeed,
+    ) {
         TapGestureState(
             player = player,
             doubleTapGesture = doubleTapGesture,
@@ -125,7 +131,6 @@ class TapGestureState(
      */
     fun handleLongPress(offset: Offset) {
         if (!useLongPressGesture) return
-        if (!player.isPlaying) return
 
         isLongPressGestureInAction = true
         currentSpeed = player.playbackParameters.speed
