@@ -1,5 +1,9 @@
 package dev.anilbeesetti.nextplayer.feature.player.ui
 
+import android.content.ContentResolver
+import android.content.Context
+import android.net.Uri
+import android.provider.MediaStore
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
@@ -13,12 +17,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -30,6 +36,8 @@ import androidx.media3.common.Tracks
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.common.util.Util.getStringForTime
 import dev.anilbeesetti.nextplayer.core.ui.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 private const val BITS_PER_KBIT = 1_000
 private const val MILLIHERTZ_PER_HERTZ = 1_000
@@ -119,11 +127,61 @@ fun BoxScope.MediaDetailsView(show: Boolean, player: Player, title: String) {
             }
             DetailsRow(
                 label = stringResource(R.string.details_path),
-                value = player.currentMediaItem?.localConfiguration?.uri?.toString()
-                    ?: player.currentMediaItem?.mediaId,
+                value = rememberLocalFilePath(
+                    uri = player.currentMediaItem?.localConfiguration?.uri,
+                ),
             )
         }
     }
+}
+
+/**
+ * Content URIs handed over by file managers and gallery apps do not contain a file system path,
+ * so ask the provider for it; fall back to the URI itself when it is not resolvable.
+ */
+@Composable
+private fun rememberLocalFilePath(uri: Uri?): String? {
+    val context = LocalContext.current
+    var path by remember(uri) {
+        mutableStateOf(value = uri?.let(::rawPathOf) ?: uri?.toString())
+    }
+    LaunchedEffect(uri) {
+        if (uri == null) return@LaunchedEffect
+        path = withContext(Dispatchers.IO) {
+            resolveLocalPath(
+                context,
+                uri,
+            ) ?: rawPathOf(uri) ?: uri.toString()
+        }
+    }
+    return path
+}
+
+private fun rawPathOf(uri: Uri): String? =
+    uri.path.takeIf { uri.scheme == ContentResolver.SCHEME_FILE }
+
+private fun resolveLocalPath(context: Context, uri: Uri): String? {
+    if (uri.scheme == ContentResolver.SCHEME_FILE) return uri.path
+    if (uri.scheme != ContentResolver.SCHEME_CONTENT) return null
+    val projection = arrayOf(
+        MediaStore.MediaColumns.DATA,
+        MediaStore.MediaColumns.DISPLAY_NAME,
+    )
+    return runCatching {
+        context.contentResolver.query(
+            uri,
+            projection,
+            null,
+            null,
+            null,
+        )?.use { cursor ->
+            if (!cursor.moveToFirst()) return@use null
+            val dataIndex = cursor.getColumnIndex(MediaStore.MediaColumns.DATA)
+            val data = dataIndex.takeIf { it >= 0 }?.let(cursor::getString)
+            data?.takeIf { it.isNotBlank() } ?: cursor
+                .getString(cursor.getColumnIndex(MediaStore.MediaColumns.DISPLAY_NAME))
+        }
+    }.getOrNull()
 }
 
 @Composable
