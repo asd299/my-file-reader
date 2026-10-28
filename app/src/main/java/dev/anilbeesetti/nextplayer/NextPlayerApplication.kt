@@ -46,6 +46,12 @@ class NextPlayerApplication :
             ),
         )
         applicationScope.launch {
+            CacheCleaner.clear(
+                application = this@NextPlayerApplication,
+                imageLoader = imageLoader,
+            )
+        }
+        applicationScope.launch {
             runCatching {
                 initializeSshKeyStore(
                     repository = networkConnectionRepository,
