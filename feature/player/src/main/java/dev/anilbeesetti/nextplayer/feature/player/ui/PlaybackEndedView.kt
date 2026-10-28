@@ -1,5 +1,6 @@
 package dev.anilbeesetti.nextplayer.feature.player.ui
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -13,20 +14,63 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.media3.common.MediaItem
 import androidx.media3.common.Player
 import dev.anilbeesetti.nextplayer.core.ui.R
 import dev.anilbeesetti.nextplayer.feature.player.buttons.PlayerButton
+
+private const val END_TOLERANCE_MS = 800L
+
+/**
+ * The player is paused at the end of the queue, either because it reached STATE_ENDED or because
+ * [Player.getPauseAtEndOfMediaItems] paused it on the last frame (which keeps STATE_READY).
+ */
+private fun Player.isAtEndOfPlayback(): Boolean {
+    if (playbackState == Player.STATE_ENDED) return true
+    if (playWhenReady || hasNextMediaItem()) return false
+    if (playbackState != Player.STATE_READY) return false
+    val duration = duration
+    return duration > 0 &&
+        currentPosition >= duration - END_TOLERANCE_MS
+}
 
 /** Tracks whether playback reached the end of the last media item. */
 @Composable
 fun rememberIsPlaybackEnded(player: Player?): Boolean {
     var isEnded by remember(player) {
-        mutableStateOf(value = player?.playbackState == Player.STATE_ENDED)
+        mutableStateOf(value = player?.isAtEndOfPlayback() == true)
     }
     DisposableEffect(key1 = player) {
         val listener = object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
-                isEnded = playbackState == Player.STATE_ENDED
+                isEnded = player?.isAtEndOfPlayback() == true
+            }
+
+            override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
+                val pausedAtEnd = !playWhenReady &&
+                    reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM
+                if (pausedAtEnd) {
+                    // Pausing at the end of the item keeps STATE_READY, so the state alone is not enough.
+                    isEnded = true
+                } else if (playWhenReady) {
+                    isEnded = false
+                } else {
+                    isEnded = player?.isAtEndOfPlayback() == true
+                }
+            }
+
+            override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                isEnded = false
+            }
+
+            override fun onPositionDiscontinuity(
+                oldPosition: Player.PositionInfo,
+                newPosition: Player.PositionInfo,
+                reason: Int,
+            ) {
+                if (player?.playWhenReady != true) {
+                    isEnded = player?.isAtEndOfPlayback() == true
+                }
             }
         }
         player?.addListener(listener)
@@ -42,7 +86,7 @@ fun PlaybackEndedReplayButton(modifier: Modifier = Modifier, onClick: () -> Unit
     PlayerButton(
         modifier = modifier.size(72.dp),
         containerColor = Color.Black.copy(alpha = 0.5f),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(12.dp),
+        contentPadding = PaddingValues(12.dp),
         onClick = onClick,
     ) {
         Icon(

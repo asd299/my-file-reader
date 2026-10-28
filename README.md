@@ -1,84 +1,50 @@
 ![Next player banner](fastlane/metadata/android/en-US/images/featureGraphic.png)
 
-# Next Player（中文定制版）
+# Next Player（播放器精简定制版）
 
-Next Player 是一款使用 Kotlin 编写的原生 Android 视频播放器，界面简洁、易于使用，基于 [anilbeesetti/nextplayer](https://github.com/anilbeesetti/nextplayer) 二次开发。
+一个只保留播放器的原生 Android 视频播放器，基于 [anilbeesetti/nextplayer](https://github.com/anilbeesetti/nextplayer) 二次开发。
 
-**本仓库为个人定制分支，已针对播放器的手势体验和播放结束行为做了专门调整，并精简了设置入口。项目仍在持续开发中，如遇到问题欢迎在 [Issues](https://github.com/asd299/nextplayer/issues) 中反馈。**
+本分支做了一次彻底精简：**删除播放器之外的所有界面**（主页、媒体库、播放列表、网络存储管理、更多/历史/回收站等），**不提供桌面启动图标**，只能由其他应用通过“打开方式 / 分享”等方式调用播放器。
+
+## 使用方式
+
+其他应用（文件管理器、相册、浏览器、聊天工具等）以 `VIEW` 意图打开视频时即可调用本应用，支持：
+
+- 本地文件与 `content://` 视频
+- `http/https`、`rtsp/rtp/rtmp` 等流媒体地址
+- `smb`、`ftp`、`sftp`、`webdav` 网络存储地址
+
+由于没有主界面，安装后在桌面不会出现图标，需要通过其他应用的“打开方式”来使用。
 
 ## 本分支的定制内容
 
-- **长按上下滑动实时调速**：长按屏幕后上下滑动即可连续调整播放速度（0.25x～8x，步进 0.25x），松手后自动恢复原速。
-- **播放结束停留最后一帧**：视频播放完毕后不再自动关闭播放器或清空队列，画面停留在最后一帧。
-- **中央重播按钮**：播放结束后在画面中央显示悬浮“重播”按钮，点击即可从头重新播放。
-- **默认不自动播放下一个**：默认关闭自动连播，需要手动切换或重播。
+- **只保留播放器**：除播放器外的所有页面与导航均已删除，应用入口只有 `PlayerActivity`。
+- **播放结束停留最后一帧**：播放完毕后不关闭播放器、不清空队列，画面停留在最后一帧。
+- **中央悬浮重播按钮**：播放结束后画面中央显示悬浮“重播”按钮，点击从头重播；即使自动连播关闭、播放器在最后一帧暂停也能正确显示。
+- **默认不自动播放下一个**：默认关闭自动连播。
 - **默认竖屏播放**：进入播放器默认竖屏，仍可通过控制栏的旋转按钮切换方向。
-- **设置入口移至播放器右上角**：设置以全屏浮层的形式在播放器内打开，无需退出播放；原媒体库、播放列表、网络页面及“更多”页中的设置图标与设置路由已删除，代码更精简。
-- **音量调节更顺滑**：音量手势改为连续值控制，并对系统音量离散步进做去抖处理，指示器跟随手指平滑变化。
-- **亮度调节修复**：亮度不再从 100% 开始，进入播放器时会以系统当前真实亮度为起点，手势过程连续可调。
+- **设置入口在播放器右上角**：设置以全屏浮层在播放器内打开，无需退出播放。
+- **长按上下滑动实时调速**：长按画面后上下滑动连续调整速度（0.25x～8x），松手恢复原速。
+- **音量调节更顺滑**：音量手势改为连续值控制，并对系统音量离散步进做去抖处理。
+- **亮度调节修复**：亮度不再从 100% 开始，进入播放器时以系统当前真实亮度为起点。
 
 ## 功能特性
 
-- 原生 Android 应用，界面简洁易用
-- 完全免费、开源，无广告、无多余权限
+- 完全免费、开源，无广告
 - 支持 h264 与 hevc 软件解码
 - 音轨 / 字幕轨选择
 - 左侧上下滑动调节亮度，右侧上下滑动调节音量
 - 左右滑动快进 / 快退
-- 支持 [Material 3 (You)](https://m3.material.io/) 动态取色
-- 媒体选择器支持目录树、文件夹、文件三种视图
-- 播放网络 URL 视频
-- 通过存储访问框架（Android 文档选择器）播放视频
-- 播放速度调节
-- 外挂字幕支持
-- 缩放手势
-- 画中画模式
-- 后台播放
-- Android TV 版本
-- 搜索功能
-- 字幕延迟调节
-- 网络存储支持（SMB / FTP / SFTP / WebDAV）
+- 播放速度调节（含长按滑动调速）
+- 外挂字幕与字幕延迟调节
+- 缩放手势、画中画模式、后台播放
+- Android TV 版本（由其他应用或系统调用播放器）
 
 ## 支持的格式
 
-- **视频**：H.263、H.264 AVC（Baseline Profile；Android 6+ 支持 Main Profile）、H.265 HEVC、MPEG-4 SP、VP8、VP9、AV1
-    - 实际支持情况取决于 Android 设备
-- **音频**：Vorbis、Opus、FLAC、ALAC、PCM/WAVE（μ-law、A-law）、MP1、MP2、MP3、AMR（NB、WB）、AAC（LC、ELD、HE；Android 9+ 支持 xHE）、AC-3、E-AC-3、DTS、DTS-HD、TrueHD
-    - 由 ExoPlayer FFmpeg 扩展提供支持
-- **字幕**：SRT、SSA、ASS、TTML、VTT、DVB
-    - SSA/ASS 的样式支持有限，详见[该问题](https://github.com/google/ExoPlayer/issues/8435)
-
-## 截图
-
-### 手机
-
-<div style="width:100%; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1.png" width=19% alt="主页文件夹">](fastlane/metadata/android/en-US/images/phoneScreenshots/1.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2.png" width=19% alt="文件夹视频">](fastlane/metadata/android/en-US/images/phoneScreenshots/2.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3.png" width=19% alt="快捷设置">](fastlane/metadata/android/en-US/images/phoneScreenshots/3.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4.png" width=19% alt="网格视图">](fastlane/metadata/android/en-US/images/phoneScreenshots/4.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/6.png" width=19% alt="搜索结果">](fastlane/metadata/android/en-US/images/phoneScreenshots/6.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/7.png" width=19% alt="添加网络连接">](fastlane/metadata/android/en-US/images/phoneScreenshots/7.png)
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/8.png" width=19% alt="外观设置">](fastlane/metadata/android/en-US/images/phoneScreenshots/8.png)
-</div>
-
-### 播放器界面
-
-<div style="width:100%; display:flex; justify-content:space-between;">
-
-[<img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5.png" width=49% alt="手机播放器控制栏">](fastlane/metadata/android/en-US/images/phoneScreenshots/5.png)
-[<img src="fastlane/metadata/android/en-US/images/tvScreenshots/3.png" width=49% alt="TV 播放器控制栏">](fastlane/metadata/android/en-US/images/tvScreenshots/3.png)
-</div>
-
-### Android TV
-
-<div style="width:100%; display:flex; justify-content:space-between; flex-wrap:wrap; gap:8px;">
-
-[<img src="fastlane/metadata/android/en-US/images/tvScreenshots/1.png" width=49% alt="TV 主页文件夹">](fastlane/metadata/android/en-US/images/tvScreenshots/1.png)
-[<img src="fastlane/metadata/android/en-US/images/tvScreenshots/2.png" width=49% alt="TV 文件夹视频">](fastlane/metadata/android/en-US/images/tvScreenshots/2.png)
-[<img src="fastlane/metadata/android/en-US/images/tvScreenshots/4.png" width=49% alt="TV 外观设置">](fastlane/metadata/android/en-US/images/tvScreenshots/4.png)
-</div>
+- **视频**：H.263、H.264 AVC、H.265 HEVC、MPEG-4 SP、VP8、VP9、AV1（实际支持情况取决于设备）
+- **音频**：Vorbis、Opus、FLAC、ALAC、PCM/WAVE、MP1/MP2/MP3、AMR、AAC、AC-3、E-AC-3、DTS、DTS-HD、TrueHD（由 ExoPlayer FFmpeg 扩展提供）
+- **字幕**：SRT、SSA、ASS、TTML、VTT、DVB（SSA/ASS 样式支持有限）
 
 ## 构建
 
@@ -105,11 +71,10 @@ Next Player 是一款使用 Kotlin 编写的原生 Android 视频播放器，界
 
 ## 项目结构
 
-- `app/`：应用入口与顶层导航
-- `core/`：可复用基础层（`common`、`data`、`domain`、`media`、`model`、`ui`、`datastore`）
-- `feature/player`：播放器、手势、亮度与音量控制
-- `feature/settings`：设置页面（现在作为播放器内的全屏浮层复用）
-- `feature/videopicker`、`feature/playlist`、`feature/network`：媒体选择、播放列表与网络存储
+- `app/`：应用入口（依赖注入、崩溃处理、文件共享），不再包含任何页面
+- `core/`：可复用基础层（`common`、`data`、`domain`、`media`、`model`、`ui`、`datastore`、`database`）
+- `feature/player`：播放器界面、手势、亮度与音量控制、播放服务
+- `feature/settings`：设置页面，作为播放器内的全屏浮层复用
 
 ## 参与贡献
 

@@ -15,8 +15,8 @@ android {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         applicationId = "dev.anilbeesetti.nextplayer"
-        versionCode = 75
-        versionName = "0.19.0"
+        versionCode = 76
+        versionName = "0.20.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -112,9 +112,6 @@ dependencies {
     implementation(project(":core:media"))
     implementation(project(":core:model"))
     implementation(project(":core:ui"))
-    implementation(project(":feature:network"))
-    implementation(project(":feature:playlist"))
-    implementation(project(":feature:videopicker"))
     implementation(project(":feature:player"))
     implementation(project(":feature:settings"))
 
@@ -127,15 +124,10 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    implementation(libs.androidx.compose.material3.adaptive)
-    implementation(libs.androidx.navigation3.runtime)
-    implementation(libs.androidx.navigation3.ui)
-    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.lifecycle.runtimeCompose)
 
     implementation(libs.google.android.material)
-    implementation(libs.androidx.core.splashscreen)
 
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
@@ -144,10 +136,6 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.annotations)
     implementation(libs.koin.compose.viewmodel)
-
-    implementation(libs.accompanist.permissions)
-
-    implementation(libs.github.anilbeesetti.nextlib.mediainfo)
 
     testImplementation(libs.junit4)
     testImplementation(libs.kotlinx.coroutines.test)
