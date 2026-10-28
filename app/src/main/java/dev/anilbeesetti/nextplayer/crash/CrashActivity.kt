@@ -33,7 +33,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -48,19 +47,11 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import dev.anilbeesetti.nextplayer.BuildConfig
-import dev.anilbeesetti.nextplayer.MainActivity
-import dev.anilbeesetti.nextplayer.MainActivityUiState
-import dev.anilbeesetti.nextplayer.MainViewModel
 import dev.anilbeesetti.nextplayer.core.ui.R
 import dev.anilbeesetti.nextplayer.core.ui.designsystem.NextIcons
 import dev.anilbeesetti.nextplayer.core.ui.theme.NextPlayerTheme
-import dev.anilbeesetti.nextplayer.shouldUseDarkTheme
-import dev.anilbeesetti.nextplayer.shouldUseDynamicTheming
-import dev.anilbeesetti.nextplayer.shouldUseHighContrastDarkTheme
 import java.io.BufferedReader
 import java.io.File
 import java.io.InputStreamReader
@@ -68,11 +59,8 @@ import kotlin.getValue
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class CrashActivity : ComponentActivity() {
-
-    private val viewModel: MainViewModel by viewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,34 +70,13 @@ class CrashActivity : ComponentActivity() {
 
         lifecycleScope.launch { logcat = collectLogcat() }
 
-        installSplashScreen().setKeepOnScreenCondition {
-            viewModel.state.value is MainActivityUiState.Loading
-        }
+        enableEdgeToEdge(
+            statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+            navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
+        )
 
         setContent {
-            val state by viewModel.state.collectAsStateWithLifecycle()
-            val shouldUseDarkTheme = shouldUseDarkTheme(state = state)
-
-            LaunchedEffect(key1 = shouldUseDarkTheme) {
-                enableEdgeToEdge(
-                    statusBarStyle = SystemBarStyle.auto(
-                        lightScrim = Color.TRANSPARENT,
-                        darkScrim = Color.TRANSPARENT,
-                        detectDarkMode = { shouldUseDarkTheme },
-                    ),
-                    navigationBarStyle = SystemBarStyle.auto(
-                        lightScrim = Color.TRANSPARENT,
-                        darkScrim = Color.TRANSPARENT,
-                        detectDarkMode = { shouldUseDarkTheme },
-                    ),
-                )
-            }
-
-            NextPlayerTheme(
-                darkTheme = shouldUseDarkTheme,
-                highContrastDarkTheme = shouldUseHighContrastDarkTheme(state = state),
-                dynamicColor = shouldUseDynamicTheming(state = state),
-            ) {
+            NextPlayerTheme(darkTheme = true) {
                 val clipboard = LocalClipboard.current
                 CrashScreen(
                     input = CrashState(
@@ -138,12 +105,6 @@ class CrashActivity : ComponentActivity() {
                         },
                         restart = {
                             finish()
-                            startActivity(
-                                Intent(
-                                    this@CrashActivity,
-                                    MainActivity::class.java,
-                                ),
-                            )
                         },
                     ),
                 )
