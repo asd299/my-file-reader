@@ -48,7 +48,6 @@ import dev.anilbeesetti.nextplayer.core.data.repository.MediaRepository
 import dev.anilbeesetti.nextplayer.core.data.repository.PreferencesRepository
 import dev.anilbeesetti.nextplayer.core.media.network.NetworkUri
 import dev.anilbeesetti.nextplayer.core.media.network.datasource.NextDataSourceFactory
-import dev.anilbeesetti.nextplayer.core.model.LoopMode
 import dev.anilbeesetti.nextplayer.core.model.PlayerPreferences
 import dev.anilbeesetti.nextplayer.core.model.Resume
 import dev.anilbeesetti.nextplayer.core.ui.R as coreUiR
@@ -387,22 +386,6 @@ class PlayerService : MediaSessionService() {
             handleDecoderFailure(trackType = trackType)
         }
 
-        override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-            super.onPlayWhenReadyChanged(
-                playWhenReady,
-                reason,
-            )
-
-            if (reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM) {
-                // Keep the media items and the session alive so the player can stay on the last
-                // frame and offer a replay action instead of closing itself.
-                if (mediaSession?.player?.repeatMode != Player.REPEAT_MODE_OFF) {
-                    mediaSession?.player?.seekTo(0)
-                    mediaSession?.player?.play()
-                }
-            }
-        }
-
         override fun onEvents(player: Player, events: Player.Events) {
             // Consecutive items can reuse the renderer without another first-frame callback.
             if (player.playbackState != Player.STATE_READY ||
@@ -437,22 +420,6 @@ class PlayerService : MediaSessionService() {
                     mediaRepository.updateMediumPosition(
                         uri = player.currentMediaItem?.mediaId ?: return@launch,
                         position = player.currentPosition,
-                    )
-                }
-            }
-        }
-
-        override fun onRepeatModeChanged(repeatMode: Int) {
-            super.onRepeatModeChanged(repeatMode)
-            serviceScope.launch {
-                preferencesRepository.updatePlayerPreferences {
-                    it.copy(
-                        loopMode = when (repeatMode) {
-                            Player.REPEAT_MODE_OFF -> LoopMode.OFF
-                            Player.REPEAT_MODE_ONE -> LoopMode.ONE
-                            Player.REPEAT_MODE_ALL -> LoopMode.ALL
-                            else -> LoopMode.OFF
-                        },
                     )
                 }
             }
@@ -833,11 +800,6 @@ class PlayerService : MediaSessionService() {
                 it.setPlaybackSpeed(playerPreferences.defaultPlaybackSpeed)
                 it.addListener(playbackStateListener)
                 it.pauseAtEndOfMediaItems = !playerPreferences.autoplay
-                it.repeatMode = when (playerPreferences.loopMode) {
-                    LoopMode.OFF -> Player.REPEAT_MODE_OFF
-                    LoopMode.ONE -> Player.REPEAT_MODE_ONE
-                    LoopMode.ALL -> Player.REPEAT_MODE_ALL
-                }
             }
 
         decoderManager.attach(player = player)

@@ -6,7 +6,6 @@ import androidx.lifecycle.viewModelScope
 import dev.anilbeesetti.nextplayer.core.data.repository.MediaRepository
 import dev.anilbeesetti.nextplayer.core.data.repository.PreferencesRepository
 import dev.anilbeesetti.nextplayer.core.domain.GetSortedPlaylistUseCase
-import dev.anilbeesetti.nextplayer.core.model.LoopMode
 import dev.anilbeesetti.nextplayer.core.model.PlayerPreferences
 import dev.anilbeesetti.nextplayer.core.model.Video
 import dev.anilbeesetti.nextplayer.core.model.VideoContentScale
@@ -35,7 +34,6 @@ class PlayerViewModel(
         val navigateUp: () -> Unit,
         val selectSubtitle: () -> Unit,
         val selectAudio: () -> Unit,
-        val playInBackground: () -> Unit,
         val setVideoDecoderMode: (DecoderMode) -> Unit,
         val setAudioDecoderMode: (DecoderMode) -> Unit,
         val tryDecoderFallback: () -> Unit,
@@ -64,8 +62,6 @@ class PlayerViewModel(
 
             is PlayerAction.SelectAudio -> output.selectAudio()
 
-            is PlayerAction.PlayInBackground -> output.playInBackground()
-
             is PlayerAction.SetVideoDecoderMode -> output.setVideoDecoderMode(action.mode)
 
             is PlayerAction.SetAudioDecoderMode -> output.setAudioDecoderMode(action.mode)
@@ -81,8 +77,6 @@ class PlayerViewModel(
             }
 
             is PlayerAction.UpdatePlayerBrightness -> updatePlayerBrightness(action.value)
-
-            is PlayerAction.SetLoopMode -> setLoopMode(action.loopMode)
 
             is PlayerAction.ToggleTimeDisplay -> toggleTimeDisplay()
 
@@ -114,12 +108,6 @@ class PlayerViewModel(
             preferencesRepository.updatePlayerPreferences {
                 it.copy(playerVideoZoom = contentScale)
             }
-        }
-    }
-
-    private fun setLoopMode(loopMode: LoopMode) {
-        viewModelScope.launch {
-            preferencesRepository.updatePlayerPreferences { it.copy(loopMode = loopMode) }
         }
     }
 
@@ -194,14 +182,12 @@ sealed interface PlayerAction {
     data object NavigateUp : PlayerAction
     data object SelectSubtitle : PlayerAction
     data object SelectAudio : PlayerAction
-    data object PlayInBackground : PlayerAction
     data class SetVideoDecoderMode(val mode: DecoderMode) : PlayerAction
     data class SetAudioDecoderMode(val mode: DecoderMode) : PlayerAction
     data object TryDecoderFallback : PlayerAction
     data class UpdateDecoderServiceState(val state: DecoderServiceState) : PlayerAction
     data class UpdatePlayWhenReady(val playWhenReady: Boolean) : PlayerAction
     data class UpdatePlayerBrightness(val value: Float) : PlayerAction
-    data class SetLoopMode(val loopMode: LoopMode) : PlayerAction
     data object ToggleTimeDisplay : PlayerAction
     data class OnVideoZoomEvent(val event: VideoZoomEvent) : PlayerAction
     data class OnSubtitleOptionEvent(val event: SubtitleOptionsEvent) : PlayerAction

@@ -139,6 +139,8 @@ internal fun MediaPlayerContent(
     LaunchedEffect(pictureInPictureState?.isInPictureInPictureMode) {
         if (pictureInPictureState?.isInPictureInPictureMode == true) {
             controlsVisibilityState.hideControls()
+            // A zoomed or panned frame would be cropped inside the tiny PiP window.
+            videoZoomAndContentScaleState.resetZoom()
         }
     }
     LaunchedEffect(tapGestureState.isLongPressGestureInAction) {

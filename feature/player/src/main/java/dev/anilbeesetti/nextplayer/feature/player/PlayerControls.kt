@@ -22,10 +22,9 @@ import dev.anilbeesetti.nextplayer.feature.player.state.ChaptersState
 import dev.anilbeesetti.nextplayer.feature.player.state.ControlsVisibilityState
 import dev.anilbeesetti.nextplayer.feature.player.state.SeekGestureState
 import dev.anilbeesetti.nextplayer.feature.player.state.VideoZoomAndContentScaleState
-import dev.anilbeesetti.nextplayer.feature.player.state.seekAmountFormatted
-import dev.anilbeesetti.nextplayer.feature.player.state.seekToPositionFormated
 import dev.anilbeesetti.nextplayer.feature.player.ui.InfoView
 import dev.anilbeesetti.nextplayer.feature.player.ui.OverlayView
+import dev.anilbeesetti.nextplayer.feature.player.ui.SeekGestureIndicator
 import dev.anilbeesetti.nextplayer.feature.player.ui.controls.ControlsBottomView
 import dev.anilbeesetti.nextplayer.feature.player.ui.controls.ControlsMiddleView
 import dev.anilbeesetti.nextplayer.feature.player.ui.controls.ControlsTopView
@@ -112,10 +111,10 @@ fun PlayerControls(
             }
         }
         when {
-            seekGestureState.seekAmount != null -> InfoView(
-                info =
-                    "${seekGestureState.seekAmountFormatted}\n" +
-                        "[${seekGestureState.seekToPositionFormated}]",
+            seekGestureState.seekAmount != null -> SeekGestureIndicator(
+                positionMs = player?.currentPosition ?: 0L,
+                durationMs = progressState.durationMs,
+                seekAmountMs = seekGestureState.seekAmount ?: 0L,
             )
 
             videoZoomAndContentScaleState.isZooming -> InfoView(

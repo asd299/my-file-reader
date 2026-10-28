@@ -13,7 +13,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import com.google.common.util.concurrent.ListenableFuture
 import dev.anilbeesetti.nextplayer.core.data.repository.PreferencesRepository
-import dev.anilbeesetti.nextplayer.core.model.LoopMode
 import dev.anilbeesetti.nextplayer.feature.player.PlayerActivity
 import dev.anilbeesetti.nextplayer.feature.player.service.PlayerService
 import dev.anilbeesetti.nextplayer.feature.player.utils.PlayerApi
@@ -47,7 +46,6 @@ class BackgroundPlaybackCompletionTest {
                     autoBackgroundPlay = true,
                     autoPip = false,
                     autoplay = autoplay,
-                    loopMode = LoopMode.OFF,
                 )
             }
         }

@@ -82,6 +82,12 @@ class VideoZoomAndContentScaleState(
 
     private var showContentScaleJob: Job? = null
 
+    /** Drops any pan and zoom so the frame is shown in full again, e.g. when entering PiP. */
+    fun resetZoom() {
+        zoom = 1f
+        offset = Offset.Zero
+    }
+
     fun onVideoContentScaleChanged(newContentScale: VideoContentScale) {
         videoContentScale = newContentScale
         zoom = 1f

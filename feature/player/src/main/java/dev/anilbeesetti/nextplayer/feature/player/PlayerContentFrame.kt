@@ -1,14 +1,11 @@
 package dev.anilbeesetti.nextplayer.feature.player
 
-import android.graphics.Rect
 import androidx.annotation.OptIn
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.boundsInWindow
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.media3.common.Player
 import androidx.media3.common.util.UnstableApi
@@ -47,16 +44,6 @@ fun PlayerContentFrame(
                         )
                     },
                 )
-                .onGloballyPositioned {
-                    val bounds = it.boundsInWindow()
-                    val rect = Rect(
-                        bounds.left.toInt(),
-                        bounds.top.toInt(),
-                        bounds.right.toInt(),
-                        bounds.bottom.toInt(),
-                    )
-                    pictureInPictureState.setVideoViewRect(rect = rect)
-                }
                 .graphicsLayer {
                     scaleX = videoZoomAndContentScaleState.zoom
                     scaleY = videoZoomAndContentScaleState.zoom

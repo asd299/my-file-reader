@@ -14,9 +14,8 @@ data class PlayerPreferences(
     val defaultPlaybackSpeed: Float = 1.0f,
     val autoplay: Boolean = false,
     val enableTunneledPlayback: Boolean = false,
-    val autoPip: Boolean = true,
+    val autoPip: Boolean = false,
     val autoBackgroundPlay: Boolean = false,
-    val loopMode: LoopMode = LoopMode.OFF,
 
     // Controls (Gestures)
     @Deprecated(
@@ -40,7 +39,6 @@ data class PlayerPreferences(
     // Player Interface
     val controllerAutoHideTimeout: Int = DEFAULT_CONTROLLER_AUTO_HIDE_TIMEOUT,
     val controlButtonsPosition: ControlButtonsPosition = ControlButtonsPosition.LEFT,
-    val hidePlayerButtonsBackground: Boolean = false,
     val useMaterialYouControls: Boolean = false,
     val showRemainingTime: Boolean = false,
 

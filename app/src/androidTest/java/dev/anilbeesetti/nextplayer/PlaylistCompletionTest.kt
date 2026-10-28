@@ -14,7 +14,6 @@ import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry
 import androidx.test.runner.lifecycle.Stage
 import com.google.common.util.concurrent.ListenableFuture
 import dev.anilbeesetti.nextplayer.core.data.repository.PreferencesRepository
-import dev.anilbeesetti.nextplayer.core.model.LoopMode
 import dev.anilbeesetti.nextplayer.core.model.Resume
 import dev.anilbeesetti.nextplayer.feature.player.PlayerActivity
 import dev.anilbeesetti.nextplayer.feature.player.service.PlayerService
@@ -35,32 +34,7 @@ class PlaylistCompletionTest {
     private val instrumentation = InstrumentationRegistry.getInstrumentation()
 
     @Test
-    fun repeatAllAdvancesAndWrapsExplicitPlaylistWithAutoplayOff() = withPlaylist(LoopMode.ALL) {
-            activity,
-            player,
-            uris,
-        ->
-        onMain { player.seekTo(59_500) }
-        await(description = "second selected item") {
-            player.currentMediaItem?.mediaId == uris[1].toString() &&
-                player.isPlaying
-        }
-        onMain { player.seekTo(59_500) }
-        await(description = "playlist wrapping to first item") {
-            player.currentMediaItem?.mediaId == uris[0].toString() &&
-                player.isPlaying
-        }
-        onMain {
-            assertEquals(
-                2,
-                player.mediaItemCount,
-            )
-            assertFalse(activity.isFinishing)
-        }
-    }
-
-    @Test
-    fun repeatOffStaysOnLastExplicitPlaylistItemWithAutoplayOff() = withPlaylist(LoopMode.OFF) {
+    fun repeatOffStaysOnLastExplicitPlaylistItemWithAutoplayOff() = withPlaylist {
             activity,
             player,
             uris,
@@ -86,33 +60,7 @@ class PlaylistCompletionTest {
     }
 
     @Test
-    fun repeatOneStillRepeatsCurrentExplicitPlaylistItemWithAutoplayOff() =
-        withPlaylist(LoopMode.ONE) {
-                activity,
-                player,
-                uris,
-            ->
-            var repeated = false
-            onMain {
-                player.addListener(object : Player.Listener {
-                    override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
-                        if (reason == Player.MEDIA_ITEM_TRANSITION_REASON_REPEAT) repeated = true
-                    }
-                })
-                player.seekTo(59_500)
-            }
-            await(description = "current item repeating") { repeated && player.isPlaying }
-            onMain {
-                assertEquals(
-                    uris[0].toString(),
-                    player.currentMediaItem?.mediaId,
-                )
-                assertFalse(activity.isFinishing)
-            }
-        }
-
-    @Test
-    fun automaticQueuePausesOnLastFrameWithAutoplayOff() = withPlaylist(LoopMode.OFF) {
+    fun automaticQueuePausesOnLastFrameWithAutoplayOff() = withPlaylist {
             activity,
             player,
             uris,
@@ -137,10 +85,7 @@ class PlaylistCompletionTest {
         }
     }
 
-    private fun withPlaylist(
-        loopMode: LoopMode,
-        check: (PlayerActivity, MediaController, List<Uri>) -> Unit,
-    ) {
+    private fun withPlaylist(check: (PlayerActivity, MediaController, List<Uri>) -> Unit) {
         val context = instrumentation.targetContext
         val preferences = GlobalContext.get().get<PreferencesRepository>()
         val originalPreferences = preferences.playerPreferences.value
@@ -148,7 +93,6 @@ class PlaylistCompletionTest {
             preferences.updatePlayerPreferences {
                 it.copy(
                     autoplay = false,
-                    loopMode = loopMode,
                     resume = Resume.NO,
                     autoPip = false,
                     autoBackgroundPlay = false,
@@ -156,10 +100,7 @@ class PlaylistCompletionTest {
             }
         }
         await(description = "playlist preferences") {
-            preferences.playerPreferences.value.let {
-                !it.autoplay &&
-                    it.loopMode == loopMode
-            }
+            !preferences.playerPreferences.value.autoplay
         }
         val audioFiles = (1..2).map { index ->
             File(

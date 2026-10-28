@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.res.Configuration
-import android.graphics.Rect
 import android.graphics.drawable.Icon
 import android.os.Build
 import android.os.Process
@@ -110,31 +109,28 @@ class PictureInPictureState(
     }
 
     private var aspectRatio: Rational? = null
-    private var sourceRectHint: Rect? = null
     private var actions: List<RemoteAction> = emptyList()
 
-    fun setVideoViewRect(rect: Rect) {
+    /**
+     * Derives the window aspect ratio from the decoded video size instead of the on-screen surface
+     * bounds: the bounds shrink while the window animates into PiP, which used to leave the window
+     * (and therefore the visible video) cropped right after entering PiP.
+     */
+    private fun updateAspectRatio() {
         if (pictureInPicture == null) return
-        if (rect.width() <= 0 || rect.height() <= 0) return
+        val videoSize = player.videoSize
+        if (videoSize.width <= 0 || videoSize.height <= 0) return
 
-        val newSourceRectHint = Rect(rect)
+        val width = (videoSize.width * videoSize.pixelWidthHeightRatio).toInt()
         val newAspectRatio = Rational(
-            newSourceRectHint.width(),
-            newSourceRectHint.height(),
+            width,
+            videoSize.height,
         )
-            .takeIf { it.toFloat() in 0.5f..2.39f }
+            .takeIf { it.toFloat() in 0.5f..2.39f } ?: return
+        if (newAspectRatio == aspectRatio) return
 
-        var changed = false
-        if (newAspectRatio != null && newAspectRatio != aspectRatio) {
-            aspectRatio = newAspectRatio
-            changed = true
-        }
-        if (newSourceRectHint != sourceRectHint) {
-            sourceRectHint = newSourceRectHint
-            changed = true
-        }
-
-        if (changed) applyPictureInPictureParams()
+        aspectRatio = newAspectRatio
+        applyPictureInPictureParams()
     }
 
     fun enterPictureInPictureMode(): Boolean {
@@ -203,10 +199,14 @@ class PictureInPictureState(
         }
 
     suspend fun observe() {
+        updateAspectRatio()
         updatePictureInPictureActions()
         applyPictureInPictureParams()
 
         player.listen { events ->
+            if (events.contains(Player.EVENT_VIDEO_SIZE_CHANGED)) {
+                updateAspectRatio()
+            }
             if (events.contains(Player.EVENT_IS_PLAYING_CHANGED)) {
                 updatePictureInPictureActions()
                 applyPictureInPictureParams()
@@ -271,7 +271,6 @@ class PictureInPictureState(
             setSeamlessResizeEnabled(seamlessResizeEnabled = true)
             setEnabled(enabled = autoEnter && player.isPlaying)
             aspectRatio?.let { setAspectRatio(aspectRatio = it) }
-            sourceRectHint?.let { setSourceRectHint(sourceRectHint = it) }
         }.build()
 
     private fun applyPictureInPictureParams() {

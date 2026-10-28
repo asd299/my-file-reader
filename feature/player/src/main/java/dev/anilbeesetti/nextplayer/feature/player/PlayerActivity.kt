@@ -79,7 +79,6 @@ class PlayerActivity : ComponentActivity() {
         CopyOnWriteArrayList<Consumer<WindowManager.LayoutParams?>>()
 
     private var isPlaybackFinished = false
-    private var playInBackground: Boolean = false
     private var isIntentNew: Boolean = true
 
     private var mediaController by mutableStateOf<MediaController?>(value = null)
@@ -103,9 +102,7 @@ class PlayerActivity : ComponentActivity() {
         }
 
         override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-            if (reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM &&
-                mediaController?.repeatMode == Player.REPEAT_MODE_OFF
-            ) {
+            if (reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM) {
                 isPlaybackFinished = true
             }
         }
@@ -170,10 +167,6 @@ class PlayerActivity : ComponentActivity() {
         navigateUp = ::finishAndStopPlayerSession,
         selectSubtitle = ::selectSubtitle,
         selectAudio = ::selectAudio,
-        playInBackground = {
-            playInBackground = true
-            finish()
-        },
         setVideoDecoderMode = { mode ->
             lifecycleScope.launch { mediaController?.setVideoDecoderMode(mode = mode) }
         },
@@ -250,7 +243,7 @@ class PlayerActivity : ComponentActivity() {
         mediaController?.run {
             viewModel.onAction(PlayerAction.UpdatePlayWhenReady(playWhenReady = playWhenReady))
             removeListener(playbackStateListener)
-            val shouldPlayInBackground = playInBackground || playerPreferences.autoBackgroundPlay
+            val shouldPlayInBackground = playerPreferences.autoBackgroundPlay
             if (subtitleFileSuspendLauncher.isAwaitingResult ||
                 audioFileSuspendLauncher.isAwaitingResult ||
                 !shouldPlayInBackground

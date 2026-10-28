@@ -3,6 +3,7 @@ package dev.anilbeesetti.nextplayer.feature.player.ui
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -11,11 +12,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.displayCutoutPadding
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -25,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
@@ -189,6 +194,73 @@ internal fun BoxScope.PlayerVerticalGestureIndicators(
                 value = brightnessPercentage,
                 icon = painterResource(coreUiR.drawable.ic_brightness),
             )
+        }
+    }
+}
+
+/**
+ * Shows the seek gesture on a timeline of the whole video, so both the target position and the
+ * total duration stay visible while the user drags.
+ */
+@Composable
+internal fun SeekGestureIndicator(positionMs: Long, durationMs: Long, seekAmountMs: Long) {
+    val totalMs = durationMs.takeIf { it > 0 }
+    val progress = if (totalMs != null) {
+        (positionMs.toFloat() / totalMs).coerceIn(
+            minimumValue = 0f,
+            maximumValue = 1f,
+        )
+    } else {
+        0f
+    }
+    val sign = if (seekAmountMs < 0) "-" else "+"
+
+    Surface(
+        modifier = Modifier.widthIn(max = 360.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = Color.Black.copy(alpha = 0.6f),
+    ) {
+        Column(
+            modifier = Modifier.padding(
+                horizontal = 20.dp,
+                vertical = 14.dp,
+            ),
+            verticalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = sign + abs(n = seekAmountMs).milliseconds.formatted(),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                )
+                Text(
+                    text = positionMs.coerceAtLeast(minimumValue = 0L).milliseconds.formatted() +
+                        " / " +
+                        (totalMs?.milliseconds?.formatted() ?: "--:--"),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.White.copy(alpha = 0.85f),
+                )
+            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(height = 4.dp)
+                    .clip(shape = CircleShape)
+                    .background(color = Color.White.copy(alpha = 0.3f)),
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = progress)
+                        .fillMaxHeight()
+                        .clip(shape = CircleShape)
+                        .background(color = Color.White),
+                )
+            }
         }
     }
 }
