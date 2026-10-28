@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import dev.anilbeesetti.nextplayer.core.ui.R
 import dev.anilbeesetti.nextplayer.core.ui.components.ClickablePreferenceItem
+import dev.anilbeesetti.nextplayer.core.ui.components.ListSectionTitle
 import dev.anilbeesetti.nextplayer.core.ui.components.NextTopAppBar
 import dev.anilbeesetti.nextplayer.core.ui.components.rememberRestorableFocusState
 import dev.anilbeesetti.nextplayer.core.ui.components.restorableFocusGroup
@@ -52,7 +53,7 @@ fun SettingsScreen(output: SettingsOutput) {
 )
 @Composable
 private fun SettingsScreenContent(onAction: (SettingsAction) -> Unit) {
-    val settingRows = remember { SettingRow.entries }
+    val sections = remember { SettingSection.entries }
     val focusState = rememberRestorableFocusState()
 
     Scaffold(
@@ -82,22 +83,30 @@ private fun SettingsScreenContent(onAction: (SettingsAction) -> Unit) {
                 .padding(paddingValues = innerPadding)
                 .padding(horizontal = 16.dp)
                 .padding(vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
         ) {
-            settingRows.forEachIndexed { index, row ->
-                key(row) {
-                    ClickablePreferenceItem(
-                        modifier = Modifier.restorableFocusItem(
-                            state = focusState,
-                            row.name,
-                        ),
-                        title = stringResource(id = row.titleResId),
-                        description = stringResource(id = row.descriptionResId),
-                        icon = row.icon,
-                        onClick = { onAction(SettingsAction.OpenSetting(row.setting)) },
-                        isFirstItem = index == 0,
-                        isLastItem = index == settingRows.lastIndex,
-                    )
+            sections.forEach { section ->
+                ListSectionTitle(text = stringResource(id = section.titleResId))
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(ListItemDefaults.SegmentedGap),
+                ) {
+                    section.rows.forEachIndexed { index, row ->
+                        key(row) {
+                            ClickablePreferenceItem(
+                                modifier = Modifier.restorableFocusItem(
+                                    state = focusState,
+                                    row.name,
+                                ),
+                                title = stringResource(id = row.titleResId),
+                                description = stringResource(id = row.descriptionResId),
+                                icon = row.icon,
+                                onClick = {
+                                    onAction(SettingsAction.OpenSetting(row.setting))
+                                },
+                                isFirstItem = index == 0,
+                                isLastItem = index == section.rows.lastIndex,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -154,5 +163,29 @@ private enum class SettingRow(
         descriptionResId = R.string.about_description,
         icon = NextIcons.Info,
         setting = Setting.ABOUT,
+    ),
+}
+
+private enum class SettingSection(val titleResId: Int, val rows: List<SettingRow>) {
+    PLAYBACK(
+        titleResId = R.string.playback,
+        rows = listOf(
+            SettingRow.PLAYER,
+            SettingRow.GESTURES,
+        ),
+    ),
+    TRACKS(
+        titleResId = R.string.audio_and_subtitle,
+        rows = listOf(
+            SettingRow.AUDIO,
+            SettingRow.SUBTITLE,
+        ),
+    ),
+    OTHER(
+        titleResId = R.string.more,
+        rows = listOf(
+            SettingRow.GENERAL,
+            SettingRow.ABOUT,
+        ),
     ),
 }

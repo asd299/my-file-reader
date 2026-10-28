@@ -71,9 +71,22 @@ private const val DOUBLE_TAP_SCALE = 2.5f
 private const val ROTATION_STEP = 90
 private const val SLIDESHOW_INTERVAL_MS = 3_000L
 
-/** Full screen image viewer with zoom, rotation, sharing, slideshow and a details panel. */
+/** Full screen image viewer with zoom, rotation, sharing, deletion, slideshow and details. */
 @Composable
-fun ImageViewerScreen(uris: List<Uri>, onClose: () -> Unit) {
+fun ImageViewerScreen(
+    uris: List<Uri>,
+    onClose: () -> Unit,
+    onDelete: (Uri) -> Unit,
+    onSettingsClick: () -> Unit,
+) {
+    if (uris.isEmpty()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(color = Color.Black),
+        )
+        return
+    }
     val context = LocalContext.current
     val pagerState = rememberPagerState { uris.size }
     var isZoomed by remember { mutableStateOf(value = false) }
@@ -95,7 +108,11 @@ fun ImageViewerScreen(uris: List<Uri>, onClose: () -> Unit) {
         pagerState.animateScrollToPage(page = (pagerState.currentPage + 1) % uris.size)
     }
 
-    val currentUri = uris[pagerState.currentPage]
+    val currentPage = pagerState.currentPage.coerceIn(
+        minimumValue = 0,
+        maximumValue = uris.lastIndex,
+    )
+    val currentUri = uris[currentPage]
 
     Box(
         modifier = Modifier
@@ -122,8 +139,9 @@ fun ImageViewerScreen(uris: List<Uri>, onClose: () -> Unit) {
         ) {
             ImageViewerTopBar(
                 uris = uris,
-                index = pagerState.currentPage,
+                index = currentPage,
                 onClose = onClose,
+                onSettingsClick = onSettingsClick,
             )
         }
         AnimatedVisibility(
@@ -145,6 +163,7 @@ fun ImageViewerScreen(uris: List<Uri>, onClose: () -> Unit) {
                     rotations[currentUri] = ((rotations[currentUri] ?: 0) + ROTATION_STEP) % 360
                 },
                 onToggleSlideshow = { slideshow = !slideshow },
+                onDelete = { onDelete(currentUri) },
                 onShowDetails = { showDetails = true },
             )
         }
@@ -153,7 +172,7 @@ fun ImageViewerScreen(uris: List<Uri>, onClose: () -> Unit) {
     if (showDetails) {
         ImageDetailsDialog(
             uri = currentUri,
-            index = pagerState.currentPage,
+            index = currentPage,
             count = uris.size,
             onDismiss = { showDetails = false },
         )
@@ -161,7 +180,12 @@ fun ImageViewerScreen(uris: List<Uri>, onClose: () -> Unit) {
 }
 
 @Composable
-private fun ImageViewerTopBar(uris: List<Uri>, index: Int, onClose: () -> Unit) {
+private fun ImageViewerTopBar(
+    uris: List<Uri>,
+    index: Int,
+    onClose: () -> Unit,
+    onSettingsClick: () -> Unit,
+) {
     val context = LocalContext.current
     val title = rememberDisplayName(
         context = context,
@@ -204,11 +228,17 @@ private fun ImageViewerTopBar(uris: List<Uri>, index: Int, onClose: () -> Unit) 
             overflow = TextOverflow.Ellipsis,
         )
         Text(
-            modifier = Modifier.padding(end = 12.dp),
             text = "${index + 1} / ${uris.size}",
             style = MaterialTheme.typography.bodyMedium,
             color = Color.White.copy(alpha = 0.7f),
         )
+        IconButton(onClick = onSettingsClick) {
+            Icon(
+                imageVector = NextIcons.Settings,
+                contentDescription = stringResource(R.string.settings),
+                tint = Color.White,
+            )
+        }
     }
 }
 
@@ -219,6 +249,7 @@ private fun ImageViewerActions(
     onShare: () -> Unit,
     onRotate: () -> Unit,
     onToggleSlideshow: () -> Unit,
+    onDelete: () -> Unit,
     onShowDetails: () -> Unit,
 ) {
     Row(
@@ -263,6 +294,11 @@ private fun ImageViewerActions(
                 onClick = onToggleSlideshow,
             )
         }
+        ImageViewerAction(
+            icon = NextIcons.Delete,
+            label = stringResource(R.string.delete),
+            onClick = onDelete,
+        )
         ImageViewerAction(
             icon = NextIcons.Info,
             label = stringResource(R.string.info),

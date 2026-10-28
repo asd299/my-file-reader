@@ -258,6 +258,11 @@ fun AboutApp(appVersion: String, modifier: Modifier = Modifier) {
                 }
             }
         }
+        Text(
+            text = stringResource(id = R.string.app_tagline),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
     }
 }
 
