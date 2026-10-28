@@ -45,11 +45,9 @@ fun ControlsTopView(
     modifier: Modifier = Modifier,
     title: String,
     videoDecoderMode: DecoderMode?,
-    onBackClick: () -> Unit = {},
     onDecoderClick: () -> Unit = {},
     onAudioClick: () -> Unit = {},
     onSubtitleClick: () -> Unit = {},
-    onPlaylistClick: () -> Unit = {},
     onSettingsClick: () -> Unit = {},
 ) {
     val firstControlFocusRequester = remember { FocusRequester() }
@@ -70,12 +68,6 @@ fun ControlsTopView(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        PlayerButton(onClick = onBackClick) {
-            Icon(
-                painter = painterResource(R.drawable.ic_arrow_left),
-                contentDescription = null,
-            )
-        }
         Text(
             text = title,
             style = MaterialTheme.typography.titleMedium.copy(lineBreak = LineBreak.Heading),
@@ -99,12 +91,6 @@ fun ControlsTopView(
                     text = stringResource((videoDecoderMode ?: DecoderMode.HARDWARE).labelRes),
                     style = MaterialTheme.typography.labelLarge,
                     maxLines = 1,
-                )
-            }
-            PlayerButton(onClick = onPlaylistClick) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_playlist),
-                    contentDescription = null,
                 )
             }
             PlayerButton(onClick = onAudioClick) {
@@ -137,7 +123,6 @@ private fun ControlsTopViewPreview() {
             ControlsTopView(
                 title = "Title",
                 videoDecoderMode = DecoderMode.HARDWARE,
-                onBackClick = {},
             )
         }
     }

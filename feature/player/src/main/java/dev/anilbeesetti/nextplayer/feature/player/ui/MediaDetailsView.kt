@@ -1,0 +1,159 @@
+package dev.anilbeesetti.nextplayer.feature.player.ui
+
+import androidx.annotation.OptIn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import androidx.media3.common.C
+import androidx.media3.common.Format
+import androidx.media3.common.Player
+import androidx.media3.common.Tracks
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.common.util.Util.getStringForTime
+import dev.anilbeesetti.nextplayer.core.ui.R
+
+private const val BITS_PER_KBIT = 1_000
+private const val MILLIHERTZ_PER_HERTZ = 1_000
+
+/** Read only overview of the currently playing media, shown at the right of the controls. */
+@OptIn(UnstableApi::class)
+@Composable
+fun BoxScope.MediaDetailsView(show: Boolean, player: Player, title: String) {
+    var currentTracks by remember(player) { mutableStateOf(value = player.currentTracks) }
+    DisposableEffect(key1 = player) {
+        val listener = object : Player.Listener {
+            override fun onTracksChanged(tracks: Tracks) {
+                currentTracks = tracks
+            }
+        }
+        player.addListener(listener)
+        onDispose { player.removeListener(listener) }
+    }
+    val videoFormat = currentTracks.selectedFormat(type = C.TRACK_TYPE_VIDEO)
+    val audioFormat = currentTracks.selectedFormat(type = C.TRACK_TYPE_AUDIO)
+    val bitrate = videoFormat?.bitrate?.takeIf { it > 0 } ?: audioFormat?.bitrate
+
+    OverlayView(
+        show = show,
+        title = stringResource(R.string.media_details),
+    ) {
+        Column(
+            modifier = Modifier
+                .verticalScroll(state = rememberScrollState())
+                .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            DetailsRow(
+                label = stringResource(R.string.details_title),
+                value = title.takeIf { it.isNotBlank() } ?: player.mediaMetadata.title?.toString(),
+            )
+            DetailsRow(
+                label = stringResource(R.string.details_duration),
+                value = getStringForTime(player.duration),
+            )
+            videoFormat?.let { format ->
+                if (format.width > 0 && format.height > 0) {
+                    DetailsRow(
+                        label = stringResource(R.string.details_resolution),
+                        value = "${format.width} × ${format.height}",
+                    )
+                }
+                if (format.frameRate > 0) {
+                    DetailsRow(
+                        label = stringResource(R.string.details_frame_rate),
+                        value = format.frameRate.toInt().toString() + " fps",
+                    )
+                }
+                format.sampleMimeType?.let { mimeType ->
+                    DetailsRow(
+                        label = stringResource(R.string.details_video_codec),
+                        value = mimeType,
+                    )
+                }
+            }
+            audioFormat?.let { format ->
+                format.sampleMimeType?.let { mimeType ->
+                    DetailsRow(
+                        label = stringResource(R.string.details_audio_codec),
+                        value = mimeType,
+                    )
+                }
+                if (format.channelCount > 0) {
+                    DetailsRow(
+                        label = stringResource(R.string.details_channels),
+                        value = format.channelCount.toString(),
+                    )
+                }
+                if (format.sampleRate > 0) {
+                    DetailsRow(
+                        label = stringResource(R.string.details_sample_rate),
+                        value = (format.sampleRate / MILLIHERTZ_PER_HERTZ).toString() + " kHz",
+                    )
+                }
+            }
+            if (bitrate != null) {
+                DetailsRow(
+                    label = stringResource(R.string.details_bitrate),
+                    value = (bitrate / BITS_PER_KBIT).toString() + " kbps",
+                )
+            }
+            DetailsRow(
+                label = stringResource(R.string.details_path),
+                value = player.currentMediaItem?.localConfiguration?.uri?.toString()
+                    ?: player.currentMediaItem?.mediaId,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DetailsRow(label: String, value: String?) {
+    if (value.isNullOrBlank()) return
+    Row(
+        modifier = Modifier.padding(vertical = 2.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.weight(
+                weight = 1f,
+                fill = false,
+            ),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 3,
+        )
+    }
+}
+
+@OptIn(UnstableApi::class)
+private fun Tracks.selectedFormat(type: Int): Format? {
+    val group = groups.firstOrNull { candidate ->
+        candidate.type == type && candidate.isSelected
+    } ?: return null
+    val index = (0 until group.length).firstOrNull { index ->
+        group.isTrackSelected(index)
+    } ?: 0
+    return group.getTrackFormat(index)
+}

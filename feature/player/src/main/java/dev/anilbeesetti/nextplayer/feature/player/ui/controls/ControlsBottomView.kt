@@ -24,9 +24,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
@@ -47,14 +48,13 @@ import androidx.media3.ui.compose.state.rememberProgressStateWithTickInterval
 import dev.anilbeesetti.nextplayer.core.common.extensions.isTelevision
 import dev.anilbeesetti.nextplayer.core.model.VideoContentScale
 import dev.anilbeesetti.nextplayer.core.ui.R
+import dev.anilbeesetti.nextplayer.core.ui.designsystem.NextIcons
 import dev.anilbeesetti.nextplayer.core.ui.extensions.copy
 import dev.anilbeesetti.nextplayer.core.ui.theme.NextPlayerTheme
-import dev.anilbeesetti.nextplayer.feature.player.buttons.LoopButton
 import dev.anilbeesetti.nextplayer.feature.player.buttons.PlaybackSpeedButton
 import dev.anilbeesetti.nextplayer.feature.player.buttons.PlayerButton
 import dev.anilbeesetti.nextplayer.feature.player.buttons.PlayerButtonBlackAlpha
 import dev.anilbeesetti.nextplayer.feature.player.buttons.RotateButton
-import dev.anilbeesetti.nextplayer.feature.player.buttons.ShuffleButton
 import dev.anilbeesetti.nextplayer.feature.player.extensions.drawableRes
 import dev.anilbeesetti.nextplayer.feature.player.state.ChaptersState
 import dev.anilbeesetti.nextplayer.feature.player.state.rememberChaptersState
@@ -81,7 +81,8 @@ fun ControlsBottomView(
     onLockControlsClick: () -> Unit,
     onPictureInPictureClick: () -> Unit,
     onPlaybackSpeedClick: () -> Unit,
-    onPlayInBackgroundClick: () -> Unit,
+    onPlaylistClick: () -> Unit,
+    onDetailsClick: () -> Unit,
     onSeek: (Long) -> Unit,
     onSeekEnd: () -> Unit,
 ) {
@@ -91,6 +92,9 @@ fun ControlsBottomView(
     val context = LocalContext.current
     val isTv = remember { context.isTelevision }
     val timeButtonFocusRequester = remember { FocusRequester() }
+    // While the user drags the seekbar the player only reports the position after the seek is
+    // applied, so the slider and the time label follow the dragged value instead.
+    var scrubPositionMs by remember { mutableStateOf<Long?>(value = null) }
     Column(
         modifier = modifier
             .padding(systemBarsPadding.copy(top = 0.dp))
@@ -118,12 +122,9 @@ fun ControlsBottomView(
                     vertical = 1.dp,
                 ),
             ) {
-                val timeTextPositionMs by remember(progressState) {
-                    derivedStateOf {
-                        val wholeSeconds = progressState.currentPositionMs / MILLISECONDS_PER_SECOND
-                        wholeSeconds * MILLISECONDS_PER_SECOND
-                    }
-                }
+                val positionMs = scrubPositionMs ?: progressState.currentPositionMs
+                val wholeSeconds = positionMs / MILLISECONDS_PER_SECOND
+                val timeTextPositionMs = wholeSeconds * MILLISECONDS_PER_SECOND
                 Text(
                     text = buildString {
                         val positionText = when (showRemainingTime) {
@@ -197,53 +198,69 @@ fun ControlsBottomView(
             }
         }
         PlayerSeekbar(
-            position = progressState.currentPositionMs.toFloat(),
+            position = (scrubPositionMs ?: progressState.currentPositionMs).toFloat(),
             duration = progressState.durationMs.toFloat(),
             chapters = chaptersState.chapters,
-            onSeek = { onSeek(it.toLong()) },
-            onSeekFinished = { onSeekEnd() },
+            onSeek = { value ->
+                scrubPositionMs = value.toLong()
+                onSeek(value.toLong())
+            },
+            onSeekFinished = {
+                scrubPositionMs = null
+                onSeekEnd()
+            },
         )
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(state = rememberScrollState()),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(
-                8.dp,
-                alignment = controlsAlignment,
-            ),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            PlayerButton(onClick = onLockControlsClick) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_lock_open),
-                    contentDescription = null,
-                )
-            }
-            PlayerButton(
-                onClick = onVideoContentScaleClick,
-                onLongClick = onVideoContentScaleLongClick,
+            Row(
+                modifier = Modifier
+                    .weight(weight = 1f)
+                    .horizontalScroll(state = rememberScrollState()),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(
+                    8.dp,
+                    alignment = controlsAlignment,
+                ),
             ) {
-                Icon(
-                    painter = painterResource(videoContentScale.drawableRes()),
-                    contentDescription = null,
-                )
-            }
-            if (isPipSupported) {
-                PlayerButton(onClick = onPictureInPictureClick) {
+                PlayerButton(onClick = onLockControlsClick) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_pip),
+                        painter = painterResource(R.drawable.ic_lock_open),
                         contentDescription = null,
                     )
                 }
+                PlayerButton(
+                    onClick = onVideoContentScaleClick,
+                    onLongClick = onVideoContentScaleLongClick,
+                ) {
+                    Icon(
+                        painter = painterResource(videoContentScale.drawableRes()),
+                        contentDescription = null,
+                    )
+                }
+                if (isPipSupported) {
+                    PlayerButton(onClick = onPictureInPictureClick) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_pip),
+                            contentDescription = null,
+                        )
+                    }
+                }
             }
-            PlayerButton(onClick = onPlayInBackgroundClick) {
+            PlayerButton(onClick = onPlaylistClick) {
                 Icon(
-                    painter = painterResource(R.drawable.ic_headset),
-                    contentDescription = null,
+                    imageVector = NextIcons.Playlist,
+                    contentDescription = stringResource(R.string.playlist),
                 )
             }
-            LoopButton(player = player)
-            ShuffleButton(player = player)
+            PlayerButton(onClick = onDetailsClick) {
+                Icon(
+                    imageVector = NextIcons.Info,
+                    contentDescription = stringResource(R.string.media_details),
+                )
+            }
         }
     }
 }
@@ -274,7 +291,8 @@ private fun ControlsBottomViewPreview() {
                 onLockControlsClick = {},
                 onPictureInPictureClick = {},
                 onPlaybackSpeedClick = {},
-                onPlayInBackgroundClick = {},
+                onPlaylistClick = {},
+                onDetailsClick = {},
                 onSeek = {},
                 onSeekEnd = {},
             )

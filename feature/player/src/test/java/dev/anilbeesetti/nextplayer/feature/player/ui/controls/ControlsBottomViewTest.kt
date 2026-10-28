@@ -160,7 +160,8 @@ class ControlsBottomViewTest {
                     onLockControlsClick = {},
                     onPictureInPictureClick = {},
                     onPlaybackSpeedClick = {},
-                    onPlayInBackgroundClick = {},
+                    onPlaylistClick = {},
+                    onDetailsClick = {},
                     onSeek = player::seekTo,
                     onSeekEnd = {},
                 )

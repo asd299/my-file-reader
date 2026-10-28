@@ -179,8 +179,6 @@ internal fun MediaPlayerControls(
                     chaptersState = chaptersState,
                     isPipSupported = isPipSupported,
                     onShowOverlay = ::showOverlay,
-                    onBackClick = { onAction(PlayerAction.NavigateUp) },
-                    onPlayInBackgroundClick = { onAction(PlayerAction.PlayInBackground) },
                     onToggleTimeDisplay = { onAction(PlayerAction.ToggleTimeDisplay) },
                     onPictureInPictureClick = onPictureInPictureClick,
                     onSettingsClick = onSettingsClick,
@@ -194,6 +192,7 @@ internal fun MediaPlayerControls(
             OverlayShowView(
                 player = player,
                 overlayView = overlayView,
+                title = metadataState.title.orEmpty(),
                 chapters = chaptersState.chapters,
                 currentChapterIndex = chaptersState.currentChapterIndex,
                 onChapterSelected = { chapter ->

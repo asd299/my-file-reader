@@ -45,8 +45,6 @@ fun PlayerControls(
     chaptersState: ChaptersState,
     isPipSupported: Boolean,
     onShowOverlay: (OverlayView) -> Unit,
-    onBackClick: () -> Unit,
-    onPlayInBackgroundClick: () -> Unit,
     onToggleTimeDisplay: () -> Unit,
     onPictureInPictureClick: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -69,8 +67,6 @@ fun PlayerControls(
                     onDecoderClick = { onShowOverlay(OverlayView.DECODER_SELECTOR) },
                     onAudioClick = { onShowOverlay(OverlayView.AUDIO_SELECTOR) },
                     onSubtitleClick = { onShowOverlay(OverlayView.SUBTITLE_SELECTOR) },
-                    onPlaylistClick = { onShowOverlay(OverlayView.PLAYLIST) },
-                    onBackClick = onBackClick,
                     onSettingsClick = onSettingsClick,
                 )
             }
@@ -98,7 +94,8 @@ fun PlayerControls(
                     onSeek = seekGestureState::onSeek,
                     onSeekEnd = seekGestureState::onSeekEnd,
                     onPlaybackSpeedClick = { onShowOverlay(OverlayView.PLAYBACK_SPEED) },
-                    onPlayInBackgroundClick = onPlayInBackgroundClick,
+                    onPlaylistClick = { onShowOverlay(OverlayView.PLAYLIST) },
+                    onDetailsClick = { onShowOverlay(OverlayView.MEDIA_DETAILS) },
                     onLockControlsClick = {
                         controlsVisibilityState.showControls()
                         controlsVisibilityState.lockControls()

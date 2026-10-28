@@ -16,6 +16,7 @@ import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.DecoderMode
 fun BoxScope.OverlayShowView(
     player: Player,
     overlayView: OverlayView?,
+    title: String,
     videoDecoderMode: DecoderMode?,
     audioDecoderMode: DecoderMode?,
     videoContentScale: VideoContentScale,
@@ -88,6 +89,12 @@ fun BoxScope.OverlayShowView(
         currentChapterIndex = currentChapterIndex,
         onChapterSelected = onChapterSelected,
     )
+
+    MediaDetailsView(
+        show = overlayView == OverlayView.MEDIA_DETAILS,
+        player = player,
+        title = title,
+    )
 }
 
 val Configuration.isPortrait: Boolean
@@ -101,4 +108,5 @@ enum class OverlayView {
     VIDEO_CONTENT_SCALE,
     PLAYLIST,
     CHAPTERS,
+    MEDIA_DETAILS,
 }
