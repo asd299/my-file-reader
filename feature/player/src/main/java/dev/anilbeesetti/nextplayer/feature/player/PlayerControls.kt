@@ -114,7 +114,6 @@ fun PlayerControls(
             seekGestureState.seekAmount != null -> SeekGestureIndicator(
                 positionMs = player?.currentPosition ?: 0L,
                 durationMs = progressState.durationMs,
-                seekAmountMs = seekGestureState.seekAmount ?: 0L,
             )
 
             videoZoomAndContentScaleState.isZooming -> InfoView(

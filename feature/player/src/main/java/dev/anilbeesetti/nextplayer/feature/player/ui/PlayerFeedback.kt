@@ -200,11 +200,11 @@ internal fun BoxScope.PlayerVerticalGestureIndicators(
 }
 
 /**
- * Shows the seek gesture on a timeline of the whole video: what is being skipped, where playback
- * will land and how far that is through the video.
+ * Shows the seek gesture on a timeline of the whole video: where playback will land, how far that
+ * is through the video and what the total duration is.
  */
 @Composable
-internal fun SeekGestureIndicator(positionMs: Long, durationMs: Long, seekAmountMs: Long) {
+internal fun SeekGestureIndicator(positionMs: Long, durationMs: Long) {
     val totalMs = durationMs.takeIf { it > 0 }
     val progress = if (totalMs != null) {
         (positionMs.toFloat() / totalMs).coerceIn(
@@ -214,99 +214,74 @@ internal fun SeekGestureIndicator(positionMs: Long, durationMs: Long, seekAmount
     } else {
         0f
     }
-    val sign = if (seekAmountMs < 0) "-" else "+"
 
-    Surface(
-        modifier = Modifier.widthIn(
-            min = 240.dp,
-            max = 380.dp,
-        ),
-        shape = RoundedCornerShape(20.dp),
-        color = Color.Black.copy(alpha = 0.75f),
+    Column(
+        modifier = Modifier
+            .widthIn(
+                min = 240.dp,
+                max = 380.dp,
+            )
+            .padding(horizontal = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Column(
-            modifier = Modifier.padding(
-                horizontal = 20.dp,
-                vertical = 16.dp,
-            ),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+        Text(
+            text = positionMs.coerceAtLeast(minimumValue = 0L).milliseconds.formatted() +
+                " / " +
+                (totalMs?.milliseconds?.formatted() ?: "--:--"),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth(),
+        )
+        Canvas(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(height = 16.dp),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Surface(
-                    shape = CircleShape,
-                    color = Color.White.copy(alpha = 0.16f),
-                ) {
-                    Text(
-                        text = sign + abs(n = seekAmountMs).milliseconds.formatted(),
-                        modifier = Modifier.padding(
-                            horizontal = 12.dp,
-                            vertical = 4.dp,
-                        ),
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White,
-                    )
-                }
-                Text(
-                    text = positionMs.coerceAtLeast(minimumValue = 0L).milliseconds.formatted() +
-                        " / " +
-                        (totalMs?.milliseconds?.formatted() ?: "--:--"),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.White.copy(alpha = 0.8f),
-                )
-            }
-            Canvas(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(height = 16.dp),
-            ) {
-                val strokeWidth = 6.dp.toPx()
-                val edgeInset = strokeWidth / 2 + 2.dp.toPx()
-                val centerY = size.height / 2
-                val startX = edgeInset
-                val endX = size.width - edgeInset
-                val thumbX = startX + (endX - startX) * progress
+            val strokeWidth = 6.dp.toPx()
+            val edgeInset = strokeWidth / 2 + 2.dp.toPx()
+            val centerY = size.height / 2
+            val startX = edgeInset
+            val endX = size.width - edgeInset
+            val thumbX = startX + (endX - startX) * progress
+            drawLine(
+                color = Color.White.copy(alpha = 0.25f),
+                start = Offset(
+                    x = startX,
+                    y = centerY,
+                ),
+                end = Offset(
+                    x = endX,
+                    y = centerY,
+                ),
+                strokeWidth = strokeWidth,
+                cap = StrokeCap.Round,
+            )
+            if (progress > 0f) {
                 drawLine(
-                    color = Color.White.copy(alpha = 0.25f),
+                    color = Color.White,
                     start = Offset(
                         x = startX,
                         y = centerY,
                     ),
                     end = Offset(
-                        x = endX,
+                        x = thumbX,
                         y = centerY,
                     ),
                     strokeWidth = strokeWidth,
                     cap = StrokeCap.Round,
                 )
-                if (progress > 0f) {
-                    drawLine(
-                        color = Color.White,
-                        start = Offset(
-                            x = startX,
-                            y = centerY,
-                        ),
-                        end = Offset(
-                            x = thumbX,
-                            y = centerY,
-                        ),
-                        strokeWidth = strokeWidth,
-                        cap = StrokeCap.Round,
-                    )
-                }
-                drawCircle(
-                    color = Color.White,
-                    radius = 5.dp.toPx(),
-                    center = Offset(
-                        x = thumbX,
-                        y = centerY,
-                    ),
-                )
             }
+            drawCircle(
+                color = Color.White,
+                radius = 5.dp.toPx(),
+                center = Offset(
+                    x = thumbX,
+                    y = centerY,
+                ),
+            )
         }
     }
 }
