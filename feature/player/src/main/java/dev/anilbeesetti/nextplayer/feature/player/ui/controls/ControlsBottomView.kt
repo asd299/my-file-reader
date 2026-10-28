@@ -4,10 +4,10 @@ import androidx.annotation.OptIn
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.displayCutout
@@ -56,10 +56,12 @@ import dev.anilbeesetti.nextplayer.feature.player.buttons.PlayerButton
 import dev.anilbeesetti.nextplayer.feature.player.buttons.PlayerButtonBlackAlpha
 import dev.anilbeesetti.nextplayer.feature.player.buttons.RotateButton
 import dev.anilbeesetti.nextplayer.feature.player.extensions.drawableRes
+import dev.anilbeesetti.nextplayer.feature.player.model.labelRes
 import dev.anilbeesetti.nextplayer.feature.player.state.ChaptersState
 import dev.anilbeesetti.nextplayer.feature.player.state.rememberChaptersState
 import dev.anilbeesetti.nextplayer.feature.player.ui.preview.rememberPreviewPlayer
 import dev.anilbeesetti.nextplayer.feature.player.ui.titleOrDefault
+import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.DecoderMode
 
 private const val MILLISECONDS_PER_SECOND = 1_000L
 
@@ -72,6 +74,7 @@ fun ControlsBottomView(
     chaptersState: ChaptersState,
     controlsAlignment: Alignment.Horizontal,
     videoContentScale: VideoContentScale,
+    videoDecoderMode: DecoderMode?,
     isPipSupported: Boolean,
     showRemainingTime: Boolean,
     onToggleTimeDisplay: () -> Unit,
@@ -81,8 +84,10 @@ fun ControlsBottomView(
     onLockControlsClick: () -> Unit,
     onPictureInPictureClick: () -> Unit,
     onPlaybackSpeedClick: () -> Unit,
+    onDecoderClick: () -> Unit,
+    onAudioClick: () -> Unit,
+    onSubtitleClick: () -> Unit,
     onPlaylistClick: () -> Unit,
-    onDetailsClick: () -> Unit,
     onSeek: (Long) -> Unit,
     onSeekEnd: () -> Unit,
 ) {
@@ -106,84 +111,100 @@ fun ControlsBottomView(
             ),
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
-        Row(
+        // Playback time on the left, lock in the middle and speed/rotation on the right.
+        Box(
             modifier = Modifier
+                .fillMaxWidth()
                 .focusProperties { onEnter = { timeButtonFocusRequester.requestFocus() } }
                 .focusGroup(),
-            verticalAlignment = Alignment.Bottom,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            PlayerButton(
-                modifier = Modifier.focusRequester(focusRequester = timeButtonFocusRequester),
-                onClick = onToggleTimeDisplay,
-                containerColor = PlayerButtonBlackAlpha,
-                contentPadding = PaddingValues(
-                    horizontal = 8.dp,
-                    vertical = 1.dp,
-                ),
+            Row(
+                modifier = Modifier.align(Alignment.CenterStart),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                val positionMs = scrubPositionMs ?: progressState.currentPositionMs
-                val wholeSeconds = positionMs / MILLISECONDS_PER_SECOND
-                val timeTextPositionMs = wholeSeconds * MILLISECONDS_PER_SECOND
-                Text(
-                    text = buildString {
-                        val positionText = when (showRemainingTime) {
-                            true -> if (progressState.durationMs != C.TIME_UNSET) {
-                                val remainingMs = timeTextPositionMs - progressState.durationMs
-                                getStringForTime(remainingMs)
-                            } else {
-                                getStringForTime(C.TIME_UNSET)
-                            }
-
-                            false -> getStringForTime(timeTextPositionMs)
-                        }
-                        append(positionText)
-                        append(" / ")
-                        append(getStringForTime(progressState.durationMs))
-                    },
-                    style = MaterialTheme.typography.labelLarge,
-                )
-            }
-
-            if (chaptersState.chapters.isNotEmpty()) {
                 PlayerButton(
-                    onClick = onChaptersClick,
+                    modifier = Modifier.focusRequester(focusRequester = timeButtonFocusRequester),
+                    onClick = onToggleTimeDisplay,
                     containerColor = PlayerButtonBlackAlpha,
                     contentPadding = PaddingValues(
-                        vertical = 1.dp,
                         horizontal = 8.dp,
-                    ).copy(end = 2.dp),
+                        vertical = 1.dp,
+                    ),
                 ) {
-                    Row(
-                        modifier = Modifier,
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                    val positionMs = scrubPositionMs ?: progressState.currentPositionMs
+                    val wholeSeconds = positionMs / MILLISECONDS_PER_SECOND
+                    val timeTextPositionMs = wholeSeconds * MILLISECONDS_PER_SECOND
+                    Text(
+                        text = buildString {
+                            val positionText = when (showRemainingTime) {
+                                true -> if (progressState.durationMs != C.TIME_UNSET) {
+                                    val remainingMs = timeTextPositionMs - progressState.durationMs
+                                    getStringForTime(remainingMs)
+                                } else {
+                                    getStringForTime(C.TIME_UNSET)
+                                }
+
+                                false -> getStringForTime(timeTextPositionMs)
+                            }
+                            append(positionText)
+                            append(" / ")
+                            append(getStringForTime(progressState.durationMs))
+                        },
+                        style = MaterialTheme.typography.labelLarge,
+                    )
+                }
+
+                if (chaptersState.chapters.isNotEmpty()) {
+                    PlayerButton(
+                        onClick = onChaptersClick,
+                        containerColor = PlayerButtonBlackAlpha,
+                        contentPadding = PaddingValues(
+                            vertical = 1.dp,
+                            horizontal = 8.dp,
+                        ).copy(end = 2.dp),
                     ) {
-                        Text(
-                            text =
-                                chaptersState.chapters.getOrNull(chaptersState.currentChapterIndex)
-                                    ?.titleOrDefault(chaptersState.currentChapterIndex)
-                                    ?: stringResource(R.string.chapters),
-                            modifier = Modifier.weight(
-                                weight = 1f,
-                                fill = false,
-                            ),
-                            style = MaterialTheme.typography.labelLarge,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Rounded.NavigateNext,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                        )
+                        Row(
+                            modifier = Modifier,
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            Text(
+                                text =
+                                    chaptersState.chapters
+                                        .getOrNull(chaptersState.currentChapterIndex)
+                                        ?.titleOrDefault(chaptersState.currentChapterIndex)
+                                        ?: stringResource(R.string.chapters),
+                                modifier = Modifier.weight(
+                                    weight = 1f,
+                                    fill = false,
+                                ),
+                                style = MaterialTheme.typography.labelLarge,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Rounded.NavigateNext,
+                                contentDescription = null,
+                                modifier = Modifier.size(16.dp),
+                            )
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.weight(weight = 1f))
+            PlayerButton(
+                modifier = Modifier.align(Alignment.Center),
+                onClick = onLockControlsClick,
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.ic_lock_open),
+                    contentDescription = null,
+                )
+            }
 
             Row(
+                modifier = Modifier.align(Alignment.CenterEnd),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -225,12 +246,6 @@ fun ControlsBottomView(
                     alignment = controlsAlignment,
                 ),
             ) {
-                PlayerButton(onClick = onLockControlsClick) {
-                    Icon(
-                        painter = painterResource(R.drawable.ic_lock_open),
-                        contentDescription = null,
-                    )
-                }
                 PlayerButton(
                     onClick = onVideoContentScaleClick,
                     onLongClick = onVideoContentScaleLongClick,
@@ -248,17 +263,30 @@ fun ControlsBottomView(
                         )
                     }
                 }
+                PlayerButton(onClick = onDecoderClick) {
+                    Text(
+                        text = stringResource((videoDecoderMode ?: DecoderMode.HARDWARE).labelRes),
+                        style = MaterialTheme.typography.labelLarge,
+                        maxLines = 1,
+                    )
+                }
+                PlayerButton(onClick = onAudioClick) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_audio_track),
+                        contentDescription = null,
+                    )
+                }
+                PlayerButton(onClick = onSubtitleClick) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_subtitle_track),
+                        contentDescription = null,
+                    )
+                }
             }
             PlayerButton(onClick = onPlaylistClick) {
                 Icon(
                     imageVector = NextIcons.Playlist,
                     contentDescription = stringResource(R.string.playlist),
-                )
-            }
-            PlayerButton(onClick = onDetailsClick) {
-                Icon(
-                    imageVector = NextIcons.Info,
-                    contentDescription = stringResource(R.string.media_details),
                 )
             }
         }
@@ -282,6 +310,7 @@ private fun ControlsBottomViewPreview() {
                 ),
                 controlsAlignment = Alignment.Start,
                 videoContentScale = VideoContentScale.BEST_FIT,
+                videoDecoderMode = DecoderMode.HARDWARE,
                 isPipSupported = true,
                 showRemainingTime = false,
                 onToggleTimeDisplay = {},
@@ -291,8 +320,10 @@ private fun ControlsBottomViewPreview() {
                 onLockControlsClick = {},
                 onPictureInPictureClick = {},
                 onPlaybackSpeedClick = {},
+                onDecoderClick = {},
+                onAudioClick = {},
+                onSubtitleClick = {},
                 onPlaylistClick = {},
-                onDetailsClick = {},
                 onSeek = {},
                 onSeekEnd = {},
             )

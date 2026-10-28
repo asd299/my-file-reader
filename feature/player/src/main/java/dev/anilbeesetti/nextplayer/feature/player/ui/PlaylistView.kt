@@ -112,6 +112,8 @@ fun BoxScope.PlaylistView(modifier: Modifier = Modifier, show: Boolean, player: 
                         val isCurrentItem = index == playlistState.currentMediaItemIndex
                         PlaylistItemView(
                             mediaItem = mediaItem,
+                            durationMs = mediaItem.mediaMetadata.durationMs
+                                ?: playlistState.getDurationMsAt(index = index),
                             isFirstItem = index == 0,
                             isLastItem = index == playlistState.mediaItemCount - 1,
                             isCurrentItem = isCurrentItem,
@@ -130,6 +132,7 @@ fun BoxScope.PlaylistView(modifier: Modifier = Modifier, show: Boolean, player: 
 @Composable
 private fun ReorderableCollectionItemScope.PlaylistItemView(
     mediaItem: MediaItem,
+    durationMs: Long?,
     isFirstItem: Boolean = false,
     isLastItem: Boolean = false,
     isCurrentItem: Boolean,
@@ -185,6 +188,7 @@ private fun ReorderableCollectionItemScope.PlaylistItemView(
 
                 ThumbnailView(
                     mediaItem = mediaItem,
+                    durationMs = durationMs,
                     modifier = Modifier
                         .width(
                             width = min(
@@ -221,7 +225,7 @@ private fun ReorderableCollectionItemScope.PlaylistItemView(
 }
 
 @Composable
-private fun ThumbnailView(modifier: Modifier = Modifier, mediaItem: MediaItem) {
+private fun ThumbnailView(modifier: Modifier = Modifier, mediaItem: MediaItem, durationMs: Long?) {
     val context = LocalContext.current
     Box(
         modifier = modifier
@@ -252,25 +256,24 @@ private fun ThumbnailView(modifier: Modifier = Modifier, mediaItem: MediaItem) {
         )
 
         // Duration overlay
-        mediaItem.mediaMetadata.durationMs?.let { durationMs ->
-            if (durationMs > 0) {
-                Text(
-                    text = Utils.formatDurationMillis(millis = durationMs),
-                    style = MaterialTheme.typography.labelSmall.copy(
-                        fontWeight = FontWeight.Normal,
+        val visibleDurationMs = durationMs?.takeIf { it > 0 }
+        if (visibleDurationMs != null) {
+            Text(
+                text = Utils.formatDurationMillis(millis = visibleDurationMs),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Normal,
+                ),
+                color = Color.White,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(4.dp)
+                    .clip(MaterialTheme.shapes.extraSmall)
+                    .background(Color.Black.copy(alpha = 0.6f))
+                    .padding(
+                        vertical = 1.dp,
+                        horizontal = 3.dp,
                     ),
-                    color = Color.White,
-                    modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(4.dp)
-                        .clip(MaterialTheme.shapes.extraSmall)
-                        .background(Color.Black.copy(alpha = 0.6f))
-                        .padding(
-                            vertical = 1.dp,
-                            horizontal = 3.dp,
-                        ),
-                )
-            }
+            )
         }
     }
 }

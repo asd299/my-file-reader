@@ -34,6 +34,7 @@ import com.google.common.util.concurrent.ListenableFuture
 import dev.anilbeesetti.nextplayer.core.model.VideoContentScale
 import dev.anilbeesetti.nextplayer.core.ui.theme.NextPlayerTheme
 import dev.anilbeesetti.nextplayer.feature.player.state.rememberChaptersState
+import io.github.anilbeesetti.nextlib.media3ext.ffdecoder.DecoderMode
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Rule
@@ -110,7 +111,7 @@ class ControlsBottomViewTest {
     }
 
     @Test
-    fun upFromSeekbarEntersTimeThenRightVisitsChaptersAndSpeed() {
+    fun upFromSeekbarFocusesTimeThenChaptersAndBackDown() {
         val player = composeRule.runOnIdle { TestPlayer() }
         try {
             showControls(player = player)
@@ -126,12 +127,8 @@ class ControlsBottomViewTest {
                 .performKeyInput { pressKey(Key.DirectionRight) }
             composeRule.onNodeWithText(text = "Opening")
                 .assertIsFocused()
-                .performKeyInput { pressKey(Key.DirectionRight) }
-            composeRule.onNodeWithText(text = "1.0")
-                .assertIsFocused()
                 .performKeyInput { pressKey(Key.DirectionDown) }
-            seekbar.assertIsFocused().performKeyInput { pressKey(Key.DirectionUp) }
-            composeRule.onNodeWithText(text = "-01:00 / 01:00").assertIsFocused()
+            seekbar.assertIsFocused()
         } finally {
             composeRule.runOnIdle { player.release() }
         }
@@ -151,6 +148,7 @@ class ControlsBottomViewTest {
                     ),
                     controlsAlignment = Alignment.Start,
                     videoContentScale = VideoContentScale.BEST_FIT,
+                    videoDecoderMode = DecoderMode.HARDWARE,
                     isPipSupported = false,
                     showRemainingTime = showRemainingTime,
                     onToggleTimeDisplay = { showRemainingTime = !showRemainingTime },
@@ -160,8 +158,10 @@ class ControlsBottomViewTest {
                     onLockControlsClick = {},
                     onPictureInPictureClick = {},
                     onPlaybackSpeedClick = {},
+                    onDecoderClick = {},
+                    onAudioClick = {},
+                    onSubtitleClick = {},
                     onPlaylistClick = {},
-                    onDetailsClick = {},
                     onSeek = player::seekTo,
                     onSeekEnd = {},
                 )

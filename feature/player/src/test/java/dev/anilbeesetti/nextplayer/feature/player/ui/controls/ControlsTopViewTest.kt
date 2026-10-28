@@ -22,23 +22,22 @@ class ControlsTopViewTest {
     val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
-    fun enteringGroupFocusesDecoderInsteadOfARemovedBackButton() {
+    fun enteringGroupFocusesDetailsButton() {
         val groupFocusRequester = FocusRequester()
         composeRule.setContent {
             NextPlayerTheme {
                 ControlsTopView(
                     modifier = Modifier.focusRequester(focusRequester = groupFocusRequester),
                     title = "Video",
-                    videoDecoderMode = null,
                 )
             }
         }
-        val decoder = composeRule.onNodeWithContentDescription(
-            composeRule.activity.getString(R.string.select_decoders),
+        val details = composeRule.onNodeWithContentDescription(
+            composeRule.activity.getString(R.string.media_details),
         )
 
         composeRule.runOnIdle { groupFocusRequester.requestFocus() }
 
-        decoder.assertIsFocused()
+        details.assertIsFocused()
     }
 }

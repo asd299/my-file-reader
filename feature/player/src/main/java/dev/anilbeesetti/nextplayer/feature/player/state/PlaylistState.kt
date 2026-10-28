@@ -92,4 +92,14 @@ class PlaylistState(private val player: Player?) {
             window,
         ).mediaItem
     }
+
+    /** Duration reported by the player, which is usually the only source when opening a file. */
+    fun getDurationMsAt(index: Int): Long {
+        if (!canGetTimeline || index < 0 || index >= timeline.windowCount) return C.TIME_UNSET
+        val window = Timeline.Window()
+        return timeline.getWindow(
+            index,
+            window,
+        ).durationMs
+    }
 }

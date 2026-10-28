@@ -63,10 +63,7 @@ fun PlayerControls(
             ) {
                 ControlsTopView(
                     title = title,
-                    videoDecoderMode = videoDecoderMode,
-                    onDecoderClick = { onShowOverlay(OverlayView.DECODER_SELECTOR) },
-                    onAudioClick = { onShowOverlay(OverlayView.AUDIO_SELECTOR) },
-                    onSubtitleClick = { onShowOverlay(OverlayView.SUBTITLE_SELECTOR) },
+                    onDetailsClick = { onShowOverlay(OverlayView.MEDIA_DETAILS) },
                     onSettingsClick = onSettingsClick,
                 )
             }
@@ -88,14 +85,17 @@ fun PlayerControls(
                         ControlButtonsPosition.RIGHT -> Alignment.End
                     },
                     videoContentScale = videoZoomAndContentScaleState.videoContentScale,
+                    videoDecoderMode = videoDecoderMode,
                     isPipSupported = isPipSupported,
                     showRemainingTime = playerPreferences.showRemainingTime,
                     onToggleTimeDisplay = onToggleTimeDisplay,
                     onSeek = seekGestureState::onSeek,
                     onSeekEnd = seekGestureState::onSeekEnd,
                     onPlaybackSpeedClick = { onShowOverlay(OverlayView.PLAYBACK_SPEED) },
+                    onDecoderClick = { onShowOverlay(OverlayView.DECODER_SELECTOR) },
+                    onAudioClick = { onShowOverlay(OverlayView.AUDIO_SELECTOR) },
+                    onSubtitleClick = { onShowOverlay(OverlayView.SUBTITLE_SELECTOR) },
                     onPlaylistClick = { onShowOverlay(OverlayView.PLAYLIST) },
-                    onDetailsClick = { onShowOverlay(OverlayView.MEDIA_DETAILS) },
                     onLockControlsClick = {
                         controlsVisibilityState.showControls()
                         controlsVisibilityState.lockControls()

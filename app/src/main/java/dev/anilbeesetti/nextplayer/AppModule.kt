@@ -6,6 +6,7 @@ import coil3.disk.DiskCache
 import coil3.disk.directory
 import coil3.request.CachePolicy
 import coil3.request.crossfade
+import coil3.video.VideoFrameDecoder
 import dev.anilbeesetti.nextplayer.core.common.di.DispatchersModule
 import dev.anilbeesetti.nextplayer.core.data.DataModule
 import dev.anilbeesetti.nextplayer.feature.player.PlayerModule
@@ -34,6 +35,10 @@ class AppModule {
                 .maxSizePercent(percent = 1.0)
                 .build(),
         )
+        // The player only ever loads videos, so their first frame has to be decoded as a bitmap.
+        .components {
+            add(VideoFrameDecoder.Factory())
+        }
         .crossfade(enable = true)
         .build()
 }
