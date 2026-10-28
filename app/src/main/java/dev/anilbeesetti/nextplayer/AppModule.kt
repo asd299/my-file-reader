@@ -1,9 +1,12 @@
 package dev.anilbeesetti.nextplayer
 
 import android.content.Context
+import android.os.Build
 import coil3.ImageLoader
 import coil3.disk.DiskCache
 import coil3.disk.directory
+import coil3.gif.AnimatedImageDecoder
+import coil3.gif.GifDecoder
 import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
@@ -35,9 +38,14 @@ class AppModule {
                 .maxSizePercent(percent = 1.0)
                 .build(),
         )
-        // The player only ever loads videos, so their first frame has to be decoded as a bitmap.
+        // The player loads video frames, the image viewer handles GIFs, animated WebP/HEIF/AVIF.
         .components {
             add(VideoFrameDecoder.Factory())
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                add(AnimatedImageDecoder.Factory())
+            } else {
+                add(GifDecoder.Factory())
+            }
         }
         .crossfade(enable = true)
         .build()

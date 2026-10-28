@@ -30,6 +30,7 @@
   - **幻灯片**自动轮播（多图时出现，3 秒一张）
   - **删除**：交由系统弹出确认框（Android 11+ 走 MediaStore 删除请求，其他情况直接删除文档），删除后自动切到下一张，删完自动关闭
 - 详情面板：名称、分辨率、文件大小、路径、序号
+- 支持常见静态格式（JPEG、PNG、WebP、BMP、HEIC/HEIF、AVIF）以及**动图播放**：GIF、动态 WebP、动态 HEIC/AVIF（Android 9+ 使用系统 ImageDecoder，低版本由内置 GIF 解码器兜底）
 
 ## 播放器
 

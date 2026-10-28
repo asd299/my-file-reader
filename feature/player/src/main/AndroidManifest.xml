@@ -752,7 +752,7 @@
             android:exported="true"
             android:theme="@style/NextPlayer">
 
-            <!-- Still images handed over by galleries and file managers -->
+            <!-- Images (still and animated) handed over by galleries and file managers -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 
