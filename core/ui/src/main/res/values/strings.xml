@@ -158,8 +158,8 @@
     <string name="by">by %1$s</string>
     <string name="links">Links</string>
     <string name="project_repository">Project repository</string>
-    <string name="original_project">Original project</string>
-    <string name="original_project_thanks">Thanks to the original developer: %1$s</string>
+    <string name="original_project">Reference project</string>
+    <string name="original_project_thanks">Next Player — %1$s</string>
     <string name="error_opening_link">No app found to handle this link</string>
     <string name="media_layout">Media Layout</string>
     <string name="list">List</string>
@@ -231,8 +231,8 @@
     <string name="image_viewer_size">File size</string>
     <string name="image_viewer_delete_failed">Couldn\'t delete this image</string>
     <string name="details_index">Position</string>
-    <string name="gallery_project">Referenced project</string>
-    <string name="gallery_project_thanks">Image viewing inspired by: %1$s</string>
+    <string name="gallery_project">Reference project</string>
+    <string name="gallery_project_thanks">Fossify Gallery — %1$s</string>
     <string name="details_title">Title</string>
     <string name="details_duration">Duration</string>
     <string name="details_resolution">Resolution</string>

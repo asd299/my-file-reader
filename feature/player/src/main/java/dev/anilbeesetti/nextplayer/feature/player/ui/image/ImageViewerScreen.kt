@@ -73,12 +73,7 @@ private const val SLIDESHOW_INTERVAL_MS = 3_000L
 
 /** Full screen image viewer with zoom, rotation, sharing, deletion, slideshow and details. */
 @Composable
-fun ImageViewerScreen(
-    uris: List<Uri>,
-    onClose: () -> Unit,
-    onDelete: (Uri) -> Unit,
-    onSettingsClick: () -> Unit,
-) {
+fun ImageViewerScreen(uris: List<Uri>, onDelete: (Uri) -> Unit, onSettingsClick: () -> Unit) {
     if (uris.isEmpty()) {
         Box(
             modifier = Modifier
@@ -140,7 +135,7 @@ fun ImageViewerScreen(
             ImageViewerTopBar(
                 uris = uris,
                 index = currentPage,
-                onClose = onClose,
+                onShowDetails = { showDetails = true },
                 onSettingsClick = onSettingsClick,
             )
         }
@@ -164,7 +159,6 @@ fun ImageViewerScreen(
                 },
                 onToggleSlideshow = { slideshow = !slideshow },
                 onDelete = { onDelete(currentUri) },
-                onShowDetails = { showDetails = true },
             )
         }
     }
@@ -183,7 +177,7 @@ fun ImageViewerScreen(
 private fun ImageViewerTopBar(
     uris: List<Uri>,
     index: Int,
-    onClose: () -> Unit,
+    onShowDetails: () -> Unit,
     onSettingsClick: () -> Unit,
 ) {
     val context = LocalContext.current
@@ -211,10 +205,10 @@ private fun ImageViewerTopBar(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        IconButton(onClick = onClose) {
+        IconButton(onClick = onShowDetails) {
             Icon(
-                imageVector = NextIcons.Close,
-                contentDescription = stringResource(R.string.image_viewer_close),
+                imageVector = NextIcons.Info,
+                contentDescription = stringResource(R.string.info),
                 tint = Color.White,
             )
         }
@@ -250,7 +244,6 @@ private fun ImageViewerActions(
     onRotate: () -> Unit,
     onToggleSlideshow: () -> Unit,
     onDelete: () -> Unit,
-    onShowDetails: () -> Unit,
 ) {
     Row(
         modifier = Modifier
@@ -298,11 +291,6 @@ private fun ImageViewerActions(
             icon = NextIcons.Delete,
             label = stringResource(R.string.delete),
             onClick = onDelete,
-        )
-        ImageViewerAction(
-            icon = NextIcons.Info,
-            label = stringResource(R.string.info),
-            onClick = onShowDetails,
         )
     }
 }

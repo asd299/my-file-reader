@@ -61,7 +61,6 @@ class ImageViewerActivity : ComponentActivity() {
                 var showSettings by rememberSaveable { mutableStateOf(value = false) }
                 ImageViewerScreen(
                     uris = imageUris,
-                    onClose = ::finish,
                     onDelete = ::requestDelete,
                     onSettingsClick = { showSettings = true },
                 )

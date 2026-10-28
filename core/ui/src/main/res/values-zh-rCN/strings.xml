@@ -138,8 +138,8 @@
     <string name="enable_pip_from_settings">已停用画中画。在设置中启用它可使用此功能。</string>
     <string name="links">相关链接</string>
     <string name="project_repository">本项目地址</string>
-    <string name="original_project">原项目</string>
-    <string name="original_project_thanks">感谢原项目开发者：%1$s</string>
+    <string name="original_project">参考项目</string>
+    <string name="original_project_thanks">Next Player — %1$s</string>
     <string name="by">由 %1$s 开发</string>
     <string name="error_opening_link">未找到可打开此链接的应用</string>
     <string name="list">列表</string>
@@ -215,7 +215,7 @@
     <string name="image_viewer_delete_failed">无法删除这张图片</string>
     <string name="details_index">序号</string>
     <string name="gallery_project">参考项目</string>
-    <string name="gallery_project_thanks">图片查看功能参考：%1$s</string>
+    <string name="gallery_project_thanks">Fossify Gallery — %1$s</string>
     <string name="press_back_again_to_exit">再按一次退出</string>
     <string name="details_title">标题</string>
     <string name="details_duration">时长</string>
