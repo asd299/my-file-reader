@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -16,8 +17,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.media3.common.C
@@ -56,7 +59,8 @@ fun BoxScope.MediaDetailsView(show: Boolean, player: Player, title: String) {
         Column(
             modifier = Modifier
                 .verticalScroll(state = rememberScrollState())
-                .padding(horizontal = 24.dp),
+                .padding(horizontal = 24.dp)
+                .padding(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             DetailsRow(
@@ -126,23 +130,27 @@ fun BoxScope.MediaDetailsView(show: Boolean, player: Player, title: String) {
 private fun DetailsRow(label: String, value: String?) {
     if (value.isNullOrBlank()) return
     Row(
-        modifier = Modifier.padding(vertical = 2.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 2.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.Top,
     ) {
         Text(
             text = label,
-            modifier = Modifier.weight(
-                weight = 1f,
-                fill = false,
-            ),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
+        // The value is the part that can be arbitrarily long (paths, codec names), so it is the
+        // only one that takes the remaining width; the label keeps its intrinsic size and never
+        // gets squeezed to zero width.
         Text(
+            modifier = Modifier.weight(weight = 1f),
             text = value,
             style = MaterialTheme.typography.bodyMedium,
+            textAlign = TextAlign.End,
             overflow = TextOverflow.Ellipsis,
-            maxLines = 3,
+            maxLines = 4,
         )
     }
 }
