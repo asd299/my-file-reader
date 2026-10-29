@@ -77,16 +77,28 @@
       容器挂 `OnHierarchyChangeListener` 补刷，且只挂 split 自己的 ViewGroup（不侵入文档视图）
 - [x] 构建通过并产出 APK（1.6.3 / 13，`app-arm64-v8a-debug.apk` 53,000,751 B）
 
+### Office 弹窗主题色（1.6.4 / code 14）
+
+- [x] 现状：弹窗同样是代码构建（`AbsOfficeDialog.initRootView()` 的白色 24dp 圆角卡片、
+      `BaseOfficeDialog.createButton()` 的 #FF2828FF 字 + #FFE9EBFF 底、
+      `OfficeMenuDialog.crateItemView()` 的 #FFF4F4F4 图标小方块），且弹窗不参与 Activity 生命周期
+- [x] 入口：`OfficeDialogHelper` 有静态 `sCurrentDialog`（`showDialog()` 时写入，`releaseDialog()` 清空），
+      反射读取后逐字段换色；没有 Dialog 级回调可挂，故以 100ms 轮询（Activity 销毁即停）
+- [x] 换色内容：卡片 → #F2F8F7、图标小方块 → #DFF0EE、确认按钮 → #006A68 字 + #CFE8E4 底、
+      取消按钮 → #E9F4F2 底；头部白色底衬与卡片同色
+- [x] 跳过 `OfficeLoadingDialog`（它 `setContentView` 用自带的深色浮层）
+- [x] 构建通过并产出 APK（1.6.4 / 14，`app-arm64-v8a-debug.apk` 53,003,177 B）
+
 ### 构建结果
 
 ```
 ./gradlew assembleDebug
 BUILD SUCCESSFUL
-app-arm64-v8a-debug.apk   53,000,751 B  (1.6.3 / 13)
+app-arm64-v8a-debug.apk   53,003,177 B  (1.6.4 / 14)
 ```
 
 产物校验（aapt2）：
-- label = 轻阅 (Debug)，versionName = 1.6.3，versionCode = 13，minSdk = 23
+- label = 轻阅 (Debug)，versionName = 1.6.4，versionCode = 14，minSdk = 23
 - application-icon 指向 `mipmap-anydpi-v26/ic_launcher.xml`（自适应图标）
 - 已注册 `OfficeActivity`（VIEW：pdf/msword/ms-excel/ms-powerpoint/ooxml）
 - 已注册 `SaveFileActivity`、`PdfViewerActivity`、`QuarkOfficeActivity`、`QuarkOfficeTextViewActivity`
@@ -104,4 +116,5 @@ app-arm64-v8a-debug.apk   53,000,751 B  (1.6.3 / 13)
 - [ ] 仍需真机验证：docx/xlsx/pptx 打开、PDF 打开、另存为、打印
 - [ ] 待真机确认：PDF 顶栏（返回键 / 标题 / 分享 / 菜单）不再重叠，页面缩略图页顶栏同样正常
 - [ ] 待真机确认：Office 顶栏 / 底栏为浅青底、状态栏与导航栏为主色、Word 光标与选中手柄 / 搜索光标为青绿
+- [ ] 待真机确认：Office 弹窗（菜单 / 文件详情 / 保存提示）为浅青卡片，确认按钮为青绿字 + 青绿底
 - [ ] 已知遗留：底栏「选中态」文字 / 图标仍是 #FF2828FF（`OfficeBottomItem.select()` 内联字面量，dex 补丁不可行）
