@@ -57,16 +57,36 @@
       给根容器挂 `OnHierarchyChangeListener`，面板加入时再修复一次
 - [x] 构建通过并产出 APK（1.6.2 / 12，`app-arm64-v8a-debug.apk` 53,000,626 B）
 
+### Office 主题色改造（1.6.3 / code 13）
+
+- [x] 现状：office 界面（顶栏 / 底栏 / 状态栏）全部由 `com.uc.office` 代码构建，
+      split 里只有 4 个 layout；底色写在 `OfficeBottomItem.initView()`（#FFFAFAFA）、
+      `OfficeTopBar.mBarBackgroundColor`（-1 白色）、`BaseActivity.configureSystemUI()`
+      （状态栏白色 + 浅色图标）里，资源层改不到
+- [x] 强调色（资源层）：给 `ucoffice-master.apk` 的 6 个 drawable 二进制 XML 原位换色
+      #FF0D53FF / #FF2828FF → #FF006A68、#339999FF → #33006A68、#FFD6D6FF → #FFCFE8E4
+      （编辑光标 / 选中手柄 / 搜索光标 / 选区蒙层 / 传 PC 进度条），重打包 + zipalign，
+      `aapt2 dump resources` 校验资源数仍为 311、id 未变
+- [x] SPLIT 资产失效：`DocViewerBootstrap.SPLIT_ASSET_VERSION` 2 → 3，旧解压副本自动重解
+- [x] 运行时换色：新增 `OfficeThemeColors`（`com.re.docviewer.office`），在
+      `DocViewerBootstrap.onActivityCreated` 对 `com.uc.office.*` 调用
+      - 状态栏 / 导航栏 → 主色 #FF006A68，并清 `LIGHT_STATUS_BAR`（API 26+ 另清 `LIGHT_NAVIGATION_BAR`）
+      - 顶栏 → 反射 `OfficeTopBar.setBarBackgroundColor(#FFE6F4F3)`（同步 common/search/edit 三栏）
+      - 底栏 / 底栏项 / 传 PC 项 → `setBackgroundColor(#FFE6F4F3)`
+- [x] 时序：底栏要等文档解析完成（`openFileFinish`）才 addView，故对 `com.uc.office.widget.*`
+      容器挂 `OnHierarchyChangeListener` 补刷，且只挂 split 自己的 ViewGroup（不侵入文档视图）
+- [x] 构建通过并产出 APK（1.6.3 / 13，`app-arm64-v8a-debug.apk` 53,000,751 B）
+
 ### 构建结果
 
 ```
 ./gradlew assembleDebug
 BUILD SUCCESSFUL
-app-arm64-v8a-debug.apk   53,000,626 B  (1.6.2 / 12)
+app-arm64-v8a-debug.apk   53,000,751 B  (1.6.3 / 13)
 ```
 
 产物校验（aapt2）：
-- label = 轻阅 (Debug)，versionName = 1.6.2，versionCode = 12，minSdk = 23
+- label = 轻阅 (Debug)，versionName = 1.6.3，versionCode = 13，minSdk = 23
 - application-icon 指向 `mipmap-anydpi-v26/ic_launcher.xml`（自适应图标）
 - 已注册 `OfficeActivity`（VIEW：pdf/msword/ms-excel/ms-powerpoint/ooxml）
 - 已注册 `SaveFileActivity`、`PdfViewerActivity`、`QuarkOfficeActivity`、`QuarkOfficeTextViewActivity`
@@ -75,7 +95,7 @@ app-arm64-v8a-debug.apk   53,000,626 B  (1.6.2 / 12)
 
 ### 待办 / 已知限制
 
-- [ ] PDF / Office 界面本身来自夸克 split，无法换成 Compose 主题；只有壳页面（加载页、错误页、保存选择器）跟随 FileViewer 主题
+- [ ] PDF / Office 界面本身来自夸克 split，无法换成 Compose 主题；Office 已在「Office 主题色改造」里手工换色，PDF 仍是夸克原配色
 - [ ] PDF「编辑底栏印章/图片」依赖 `assets/t1.png`、`t1.jpg`，夸克侧缺失，当前不可达
 - [ ] 文档查看仅 arm64-v8a（split so 只有 arm64），其它 ABI 已不产出
 - [ ] 融合后应用不再提供桌面启动图标，只能由「打开方式 / 分享」唤起（与 FileViewer 一致）
@@ -83,3 +103,5 @@ app-arm64-v8a-debug.apk   53,000,626 B  (1.6.2 / 12)
 - [ ] minSdk 为 23（为完整脱糖库），`core-pip` 被强制放开；API 23~25 上画中画不可用，其余功能未在老设备验证
 - [ ] 仍需真机验证：docx/xlsx/pptx 打开、PDF 打开、另存为、打印
 - [ ] 待真机确认：PDF 顶栏（返回键 / 标题 / 分享 / 菜单）不再重叠，页面缩略图页顶栏同样正常
+- [ ] 待真机确认：Office 顶栏 / 底栏为浅青底、状态栏与导航栏为主色、Word 光标与选中手柄 / 搜索光标为青绿
+- [ ] 已知遗留：底栏「选中态」文字 / 图标仍是 #FF2828FF（`OfficeBottomItem.select()` 内联字面量，dex 补丁不可行）
