@@ -26,16 +26,29 @@
 - [x] 文案：`app_tagline` 改为 "Video, images and documents in one place"，权限说明去掉 Next Player 字样
 - [x] 构建通过并产出 APK（package `com.re.docviewer.debug`，1.6.0 / 10）
 
+### 修复 PDF 崩溃（1.6.1 / code 11）
+
+- [x] 定位：`pdfviewer` split dex 直接引用 `j$/util/concurrent/ConcurrentHashMap`、
+      `j$/util/Objects`，而 `minSdk=24` 时 L8 判定这些 Java 8 回填类不需要，base dex 里没有，
+      打开 PDF 时 `PdfiumSDK.<init>` 抛 `NoClassDefFoundError`
+- [x] 试过在 `feature/docviewer` 里自建 `j$` 桩：D8 禁止 `j$.` 类与普通类合并到同一 dex，方案不可行（已回退）
+- [x] 采用原壳同款配置：`android-minSdk = 23`，让 L8 打包完整脱糖库
+      （旧版离线文档查看器同为 23，dex 内含 1008 个 `j$` 描述符）
+- [x] `core-pip` 声明 minSdk 24，在 app 清单用 `tools:overrideLibrary="androidx.core.pip"` 放开
+      （仅画中画受影响，API 26 以下本就不可用）
+- [x] 校验：融合 APK 含 1388 个 `j$` 描述符，两个 split 引用的 `j$` 类全部可解析（缺失集为空）
+- [x] 构建通过并产出 APK（1.6.1 / 11，`app-arm64-v8a-debug.apk` 52,999,561 B）
+
 ### 构建结果
 
 ```
 ./gradlew assembleDebug
 BUILD SUCCESSFUL
-app-arm64-v8a-debug.apk   52,648,554 B  (1.6.0 / 10)
+app-arm64-v8a-debug.apk   52,999,561 B  (1.6.1 / 11)
 ```
 
 产物校验（aapt2）：
-- label = 轻阅 (Debug)，versionName = 1.6.0，versionCode = 10
+- label = 轻阅 (Debug)，versionName = 1.6.1，versionCode = 11，minSdk = 23
 - application-icon 指向 `mipmap-anydpi-v26/ic_launcher.xml`（自适应图标）
 - 已注册 `OfficeActivity`（VIEW：pdf/msword/ms-excel/ms-powerpoint/ooxml）
 - 已注册 `SaveFileActivity`、`PdfViewerActivity`、`QuarkOfficeActivity`、`QuarkOfficeTextViewActivity`
@@ -49,4 +62,5 @@ app-arm64-v8a-debug.apk   52,648,554 B  (1.6.0 / 10)
 - [ ] 文档查看仅 arm64-v8a（split so 只有 arm64），其它 ABI 已不产出
 - [ ] 融合后应用不再提供桌面启动图标，只能由「打开方式 / 分享」唤起（与 FileViewer 一致）
 - [ ] 文档入口目前只接 `VIEW`；`SEND`（分享单个文件）打开文档需要在 `OfficeActivity` 里补 `EXTRA_STREAM` 分支
+- [ ] minSdk 为 23（为完整脱糖库），`core-pip` 被强制放开；API 23~25 上画中画不可用，其余功能未在老设备验证
 - [ ] 仍需真机验证：docx/xlsx/pptx 打开、PDF 打开、另存为、打印

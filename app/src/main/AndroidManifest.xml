@@ -2,6 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- minSdk 23 是为了让 L8 打包完整脱糖库（pdfviewer split 直接引用 j$. 类）；
+         core-pip 声明 minSdk 24，仅影响画中画，强制放开即可。 -->
+    <uses-sdk tools:overrideLibrary="androidx.core.pip" />
+
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_LOCAL_NETWORK" />
     <!-- ucoffice 里的拍照 / 扫描入口会用到 -->
