@@ -97,10 +97,16 @@ fun ImageViewerScreen(uris: List<Uri>, onDelete: (Uri) -> Unit, onSettingsClick:
         slideshow,
         isZoomed,
         pagerState.currentPage,
+        uris.size,
     ) {
         if (!slideshow || isZoomed || uris.size < 2) return@LaunchedEffect
         delay(timeMillis = SLIDESHOW_INTERVAL_MS)
         pagerState.animateScrollToPage(page = (pagerState.currentPage + 1) % uris.size)
+    }
+
+    // Deleting images can leave a single one behind, where a slideshow no longer makes sense.
+    LaunchedEffect(uris.size) {
+        if (uris.size < 2) slideshow = false
     }
 
     val currentPage = pagerState.currentPage.coerceIn(

@@ -88,6 +88,8 @@ class PlayerActivity : ComponentActivity() {
     private val playbackStateListener = object : Player.Listener {
         override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
             intent.data = mediaItem?.localConfiguration?.uri
+            // The next item starts from scratch, so a completed state belongs to the previous one.
+            isPlaybackFinished = false
         }
 
         override fun onIsPlayingChanged(isPlaying: Boolean) {
@@ -95,15 +97,22 @@ class PlayerActivity : ComponentActivity() {
         }
 
         override fun onPlaybackStateChanged(playbackState: Int) {
-            if (playbackState == Player.STATE_ENDED) {
-                // Stay on the last frame and let the user replay instead of closing the player.
-                isPlaybackFinished = true
-            }
+            // Stay on the last frame and let the user replay instead of closing the player.
+            // Any other state (seeking away from the end, buffering again) means it is no longer finished.
+            isPlaybackFinished = playbackState == Player.STATE_ENDED
         }
 
         override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-            if (reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM) {
-                isPlaybackFinished = true
+            when {
+                reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM -> {
+                    // Pausing at the very end keeps STATE_READY, so the state alone is not enough.
+                    isPlaybackFinished = true
+                }
+
+                playWhenReady -> {
+                    // Replaying the last frame or resuming playback cancels the finished flag.
+                    isPlaybackFinished = false
+                }
             }
         }
     }
