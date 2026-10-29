@@ -28,7 +28,7 @@
 | 夸克浏览器（split 来源） | 本地逆向，无公开源 | `10.19.6.1171` | 夸克官网版本页 |
 | ucoffice split | 包名 `com.quark.browser.ucoffice` | 随夸克 10.19.6.1171 | — |
 | pdfviewer split | 包名 `com.quark.browser.pdfviewer` | 随夸克 10.19.6.1171 | — |
-| 融合产物（本仓库） | https://github.com/asd299/my-file-reader | `1.5.0`（versionCode 9，package `com.re.docviewer`） | 本仓库 Releases |
+| 融合产物（本仓库） | https://github.com/asd299/my-file-reader | `1.6.0`（versionCode 10，package `com.re.docviewer`，应用名「轻阅」） | 本仓库 Releases |
 
 > 构建环境：Android SDK 的平台包从 36 起带小版本号（`platforms;android-37.0`），
 > `splitstubs` 会按 `android-37*` 前缀自动查找 `android.jar`。
@@ -84,3 +84,7 @@ plan/                本目录：进度、版本与跟进说明
    并复核 `ParseErrorView` / `OfficeMenuDialog` 覆盖类的方法描述符。
 4. **工具链升级**：只改 `gradle/libs.versions.toml`，同步 `dependencies/README.md`，
    跑 `./gradlew ktlintCheck test assembleDebug`。
+5. **品牌资源**：图标源图在 [brand/qingyue-icon.jpg](brand/qingyue-icon.jpg)，改图后执行
+   `python3 plan/brand/make_icons.py` 重新生成 mdpi~xxxhdpi 的
+   `ic_launcher` / `ic_launcher_round` / `ic_launcher_foreground` / `ic_launcher_monochrome`；
+   应用名在 `core/ui/src/main/res/values/strings.xml` 的 `app_name`（debug 变体另有一份）。

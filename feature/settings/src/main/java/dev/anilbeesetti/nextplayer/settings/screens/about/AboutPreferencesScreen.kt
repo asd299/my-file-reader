@@ -56,7 +56,8 @@ import dev.anilbeesetti.nextplayer.core.ui.components.tvFocusDown
 import dev.anilbeesetti.nextplayer.core.ui.components.tvListFocus
 import dev.anilbeesetti.nextplayer.core.ui.designsystem.NextIcons
 
-private const val PROJECT_URL = "https://github.com/asd299/FileViewer"
+private const val PROJECT_URL = "https://github.com/asd299/my-file-reader"
+private const val DOCVIEWER_PROJECT_URL = "https://github.com/asd299/quark-doc-viewer"
 private const val ORIGINAL_PROJECT_URL = "https://github.com/anilbeesetti/nextplayer"
 private const val GALLERY_PROJECT_URL = "https://github.com/FossifyOrg/Gallery"
 
@@ -128,6 +129,20 @@ private fun AboutPreferencesScreenContent(
                         )
                     },
                     isFirstItem = true,
+                )
+                ClickablePreferenceItem(
+                    title = stringResource(R.string.docviewer_project),
+                    description = stringResource(
+                        R.string.docviewer_project_thanks,
+                        DOCVIEWER_PROJECT_URL,
+                    ),
+                    icon = ImageVector.vectorResource(R.drawable.ic_github),
+                    onClick = {
+                        uriHandler.openUriOrShowToast(
+                            uri = DOCVIEWER_PROJECT_URL,
+                            context = context,
+                        )
+                    },
                 )
                 ClickablePreferenceItem(
                     title = stringResource(R.string.original_project),

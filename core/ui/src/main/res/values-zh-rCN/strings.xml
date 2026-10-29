@@ -12,10 +12,10 @@
     <string name="resume">继续播放</string>
     <string name="double_tap">双击手势</string>
     <string name="double_tap_description">选择双击手势操作</string>
-    <string name="permission_info">Next Player 应用需要“%1$s”权限以访问和播放媒体。没有它，则无法访问和播放媒体。要使用应用的完整功能，请授予此权限。</string>
+    <string name="permission_info">轻阅需要“%1$s”权限以访问和播放媒体。没有它，则无法访问和播放媒体。要使用应用的完整功能，请授予此权限。</string>
     <string name="permission_not_granted">未授予权限</string>
     <string name="permission_request">权限请求</string>
-    <string name="permission_settings">Next Player 应用需要“%1$s”权限以访问和播放媒体。没有它，则无法访问和播放媒体。由于已永久拒绝了此权限，要使用应用的完整功能，请在设置中授予此权限。</string>
+    <string name="permission_settings">轻阅需要“%1$s”权限以访问和播放媒体。没有它，则无法访问和播放媒体。由于已永久拒绝了此权限，要使用应用的完整功能，请在设置中授予此权限。</string>
     <string name="player_controls_next">下一个</string>
     <string name="player_description">播放器外观、播放控制</string>
     <string name="quick_settings">快捷设置</string>

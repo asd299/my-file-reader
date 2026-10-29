@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">我的文件阅读器</string>
-    <string name="app_tagline">Lightweight video player and image viewer</string>
-    <string name="about_description">Version, support, credits</string>
+    <string name="app_name" translatable="false">轻阅</string>
+    <string name="app_tagline">Video, images and documents in one place</string>
+    <string name="about_description">Version, credits and open-source licenses</string>
     <string name="about_name">About</string>
     <string name="appearance_name">Appearance</string>
     <string name="cancel">Cancel</string>
@@ -16,10 +16,10 @@
     <string name="location">Location</string>
     <string name="navigate_up">Navigate up</string>
     <string name="open_settings">Open Settings</string>
-    <string name="permission_info">The Next Player app needs \"%1$s\" permission to access and play media. Without it, media access and playback won\'t work. To use the app fully, grant the permission.</string>
+    <string name="permission_info">The app needs \"%1$s\" permission to access and play media. Without it, media access and playback won\'t work. To use the app fully, grant the permission.</string>
     <string name="permission_not_granted">Permission Not Granted</string>
     <string name="permission_request">Permission Request</string>
-    <string name="permission_settings">The Next Player app needs \"%1$s\" permission to access and play media. Without it, media access and playback won\'t work. To use the app fully, grant the permission from settings since it was permanently denied.</string>
+    <string name="permission_settings">The app needs \"%1$s\" permission to access and play media. Without it, media access and playback won\'t work. To use the app fully, grant the permission from settings since it was permanently denied.</string>
     <string name="player_controls_next">Player next</string>
     <string name="player_controls_previous">Player previous</string>
     <string name="player_description">Player appearance, playback controls</string>
@@ -158,6 +158,8 @@
     <string name="by">by %1$s</string>
     <string name="links">Links</string>
     <string name="project_repository">Project repository</string>
+    <string name="docviewer_project">Document engine</string>
+    <string name="docviewer_project_thanks">Offline document viewer — %1$s</string>
     <string name="original_project">Reference project</string>
     <string name="original_project_thanks">Next Player — %1$s</string>
     <string name="error_opening_link">No app found to handle this link</string>
