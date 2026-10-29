@@ -14,9 +14,10 @@ android {
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        applicationId = "dev.anilbeesetti.nextplayer"
-        versionCode = 8
-        versionName = "1.4.2"
+        // 融合后的应用身份（FileViewer 基座 + 离线文档查看器）
+        applicationId = "com.re.docviewer"
+        versionCode = 9
+        versionName = "1.5.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -30,6 +31,9 @@ android {
     }
 
     compileOptions {
+        // split dex 里带 j$.* 前缀的脱糖类（j$.util.concurrent.ConcurrentHashMap 等），
+        // 由核心库脱糖提供实现，否则 PdfiumSDK 初始化即 NoClassDefFoundError
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.toVersion(libs.versions.android.jvm.get().toInt())
         targetCompatibility = JavaVersion.toVersion(libs.versions.android.jvm.get().toInt())
     }
@@ -75,11 +79,10 @@ android {
 
             isEnable = !isBuildingBundle
             reset()
+            // 文档引擎（pdfium / ucoffice）只带 arm64-v8a 的 so，
+            // 其余 ABI 打出来的包会缺文档能力，这里不再产出
             include(
-                "armeabi-v7a",
                 "arm64-v8a",
-                "x86",
-                "x86_64",
             )
             isUniversalApk = true
         }
@@ -88,6 +91,10 @@ android {
     packaging {
         resources {
             excludes.add("/META-INF/{AL2.0,LGPL2.1}")
+        }
+        jniLibs {
+            // 解压 so 到 lib 目录，保证 libpdfsdk_jni.so 能按 NEEDED 找到 libpdfium.so
+            useLegacyPackaging = true
         }
     }
 
@@ -114,6 +121,9 @@ dependencies {
     implementation(project(":core:ui"))
     implementation(project(":feature:player"))
     implementation(project(":feature:settings"))
+    implementation(project(":feature:docviewer"))
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)

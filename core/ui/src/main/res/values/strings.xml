@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">FileViewer</string>
+    <string name="app_name" translatable="false">我的文件阅读器</string>
     <string name="app_tagline">Lightweight video player and image viewer</string>
     <string name="about_description">Version, support, credits</string>
     <string name="about_name">About</string>
