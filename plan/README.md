@@ -28,7 +28,7 @@
 | 夸克浏览器（split 来源） | 本地逆向，无公开源 | `10.19.6.1171` | 夸克官网版本页 |
 | ucoffice split | 包名 `com.quark.browser.ucoffice` | 随夸克 10.19.6.1171 | — |
 | pdfviewer split | 包名 `com.quark.browser.pdfviewer` | 随夸克 10.19.6.1171 | — |
-| 融合产物（本仓库） | https://github.com/asd299/my-file-reader | `1.6.1`（versionCode 11，package `com.re.docviewer`，应用名「轻阅」，minSdk 23） | 本仓库 Releases |
+| 融合产物（本仓库） | https://github.com/asd299/my-file-reader | `1.6.2`（versionCode 12，package `com.re.docviewer`，应用名「轻阅」，minSdk 23） | 本仓库 Releases |
 
 > 构建环境：Android SDK 的平台包从 36 起带小版本号（`platforms;android-37.0`），
 > `splitstubs` 会按 `android-37*` 前缀自动查找 `android.jar`。
@@ -41,7 +41,7 @@
 | Android Gradle Plugin | `9.4.1` | `gradle/libs.versions.toml` |
 | Kotlin | `2.4.20` | 同上 |
 | JDK | `17` | `android-jvm` |
-| Android SDK | compile/target `37`、min `24` | `android-compileSdk` 等 |
+| Android SDK | compile/target `37`、min `23` | `android-compileSdk` 等 |
 
 详细依赖版本见 [dependencies/README.md](../dependencies/README.md) 与
 [gradle/libs.versions.toml](../gradle/libs.versions.toml)；融合新增的依赖记录在下方「融合增量」。

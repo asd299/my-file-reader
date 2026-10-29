@@ -39,16 +39,34 @@
 - [x] 校验：融合 APK 含 1388 个 `j$` 描述符，两个 split 引用的 `j$` 类全部可解析（缺失集为空）
 - [x] 构建通过并产出 APK（1.6.1 / 11，`app-arm64-v8a-debug.apk` 52,999,561 B）
 
+### 修复 PDF 顶栏重叠（1.6.2 / code 12）
+
+- [x] 现象：PDF 顶栏返回键与标题文字重叠，分享 / 菜单也挤在左上角
+- [x] 定位：`pdfviewer` split 的 `pdf_common_top_bar.xml` 在夸克应用内编译，
+      `app:` 命名空间下的 `layout_constraint*` 保留的是夸克自己的资源 id（`0x7f03xxxx`）；
+      宿主资源表里这一区间几乎为空（只剩 2 个 array），且宿主 ConstraintLayout 读的是自己的
+      `0x7f04xxxx` attr id → 所有约束属性在 inflate 时被丢弃 → 顶栏控件全部堆在左上角
+- [x] 同类排查：两个 split 的全部 XML 与 `resources.arsc` 里，只有
+      `pdf_common_top_bar.xml`（13 处）与 `pdf_common_bottom_bar.xml`（6 处）跨包引用
+      `0x7f03`；后者在本版 split 代码里未被 inflate（底栏由 `PDFBottomBar` 代码构建），
+      `pdf_vertical_slider` 的 `app:seekBarRotation` 用的是 split 自己的 `0x7d03`，正常
+- [x] 修复：新增 `PdfTopBarLayoutFix`，在 `setContentView(root)` 后按 XML 原语义重建
+      顶栏 LayoutParams（返回键 32dp/start 16dp；标题 0dp/左右 98dp；分享 32dp/菜单左侧 8dp；
+      菜单 32dp/end 12dp，均垂直居中）
+- [x] 覆盖懒加载入口：`PageManagerView`（页面缩略图）会另建一个 `PDFTopBar`，
+      给根容器挂 `OnHierarchyChangeListener`，面板加入时再修复一次
+- [x] 构建通过并产出 APK（1.6.2 / 12，`app-arm64-v8a-debug.apk` 53,000,626 B）
+
 ### 构建结果
 
 ```
 ./gradlew assembleDebug
 BUILD SUCCESSFUL
-app-arm64-v8a-debug.apk   52,999,561 B  (1.6.1 / 11)
+app-arm64-v8a-debug.apk   53,000,626 B  (1.6.2 / 12)
 ```
 
 产物校验（aapt2）：
-- label = 轻阅 (Debug)，versionName = 1.6.1，versionCode = 11，minSdk = 23
+- label = 轻阅 (Debug)，versionName = 1.6.2，versionCode = 12，minSdk = 23
 - application-icon 指向 `mipmap-anydpi-v26/ic_launcher.xml`（自适应图标）
 - 已注册 `OfficeActivity`（VIEW：pdf/msword/ms-excel/ms-powerpoint/ooxml）
 - 已注册 `SaveFileActivity`、`PdfViewerActivity`、`QuarkOfficeActivity`、`QuarkOfficeTextViewActivity`
@@ -64,3 +82,4 @@ app-arm64-v8a-debug.apk   52,999,561 B  (1.6.1 / 11)
 - [ ] 文档入口目前只接 `VIEW`；`SEND`（分享单个文件）打开文档需要在 `OfficeActivity` 里补 `EXTRA_STREAM` 分支
 - [ ] minSdk 为 23（为完整脱糖库），`core-pip` 被强制放开；API 23~25 上画中画不可用，其余功能未在老设备验证
 - [ ] 仍需真机验证：docx/xlsx/pptx 打开、PDF 打开、另存为、打印
+- [ ] 待真机确认：PDF 顶栏（返回键 / 标题 / 分享 / 菜单）不再重叠，页面缩略图页顶栏同样正常
