@@ -2,8 +2,8 @@
 
 本文件记录 FileViewer 使用的基础项目、参考项目与全部依赖的当前版本，便于上游发布新版本后快速跟进。
 
-- 应用版本：`1.4.0`（versionCode 6），见 `app/build.gradle.kts`
-- 最后核对日期：2026-10-28
+- 应用版本：`1.4.1`（versionCode 7），见 `app/build.gradle.kts`
+- 最后核对日期：2026-10-29
 - **所有依赖版本集中在 [`gradle/libs.versions.toml`](../gradle/libs.versions.toml)**，升级时只改这一处，然后同步更新本文件。
 
 ## 基础与参考项目

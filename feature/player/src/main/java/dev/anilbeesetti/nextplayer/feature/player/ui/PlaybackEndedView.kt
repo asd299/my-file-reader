@@ -22,13 +22,13 @@ import dev.anilbeesetti.nextplayer.feature.player.buttons.PlayerButton
 private const val END_TOLERANCE_MS = 800L
 
 /**
- * The player is paused at the end of the queue, either because it reached STATE_ENDED or because
- * [Player.getPauseAtEndOfMediaItems] paused it on the last frame (which keeps STATE_READY).
+ * The player is paused on the last frame after [Player.getPauseAtEndOfMediaItems] stopped it,
+ * which keeps [Player.STATE_READY]. A regular pause must never be mistaken for an ended playback,
+ * so this is only used to confirm or clear an already ended state.
  */
-private fun Player.isAtEndOfPlayback(): Boolean {
-    if (playbackState == Player.STATE_ENDED) return true
-    if (playWhenReady || hasNextMediaItem()) return false
+private fun Player.isPausedAtEnd(): Boolean {
     if (playbackState != Player.STATE_READY) return false
+    if (playWhenReady || hasNextMediaItem()) return false
     val duration = duration
     return duration > 0 &&
         currentPosition >= duration - END_TOLERANCE_MS
@@ -38,24 +38,27 @@ private fun Player.isAtEndOfPlayback(): Boolean {
 @Composable
 fun rememberIsPlaybackEnded(player: Player?): Boolean {
     var isEnded by remember(player) {
-        mutableStateOf(value = player?.isAtEndOfPlayback() == true)
+        mutableStateOf(
+            value = player?.playbackState == Player.STATE_ENDED || player?.isPausedAtEnd() == true,
+        )
     }
     DisposableEffect(key1 = player) {
         val listener = object : Player.Listener {
             override fun onPlaybackStateChanged(playbackState: Int) {
-                isEnded = player?.isAtEndOfPlayback() == true
+                isEnded = playbackState == Player.STATE_ENDED
             }
 
             override fun onPlayWhenReadyChanged(playWhenReady: Boolean, reason: Int) {
-                val pausedAtEnd = !playWhenReady &&
-                    reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM
-                if (pausedAtEnd) {
-                    // Pausing at the end of the item keeps STATE_READY, so the state alone is not enough.
-                    isEnded = true
-                } else if (playWhenReady) {
-                    isEnded = false
-                } else {
-                    isEnded = player?.isAtEndOfPlayback() == true
+                when {
+                    playWhenReady -> isEnded = false
+
+                    reason == Player.PLAY_WHEN_READY_CHANGE_REASON_END_OF_MEDIA_ITEM -> {
+                        // Pausing at the end of the item keeps STATE_READY, so the state alone is not enough.
+                        isEnded = true
+                    }
+
+                    // A user pause in the middle of a video must not turn the ended state on.
+                    isEnded -> isEnded = player?.isPausedAtEnd() == true
                 }
             }
 
@@ -68,8 +71,8 @@ fun rememberIsPlaybackEnded(player: Player?): Boolean {
                 newPosition: Player.PositionInfo,
                 reason: Int,
             ) {
-                if (player?.playWhenReady != true) {
-                    isEnded = player?.isAtEndOfPlayback() == true
+                if (isEnded) {
+                    isEnded = player?.isPausedAtEnd() == true
                 }
             }
         }
