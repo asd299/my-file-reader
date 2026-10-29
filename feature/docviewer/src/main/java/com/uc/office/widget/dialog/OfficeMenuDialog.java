@@ -148,7 +148,7 @@ public class OfficeMenuDialog extends BaseOfficeDialog {
         linearLayout.setGravity(17);
         FrameLayout frameLayout = new FrameLayout(this.mContext);
         frameLayout.setBackground(DisplayUtils.getRoundRectShapeDrawable(
-                DisplayUtils.dp2px(12.0f), color(com.re.docviewer.R.color.doc_dialog_tile)));
+                DisplayUtils.dp2px(12.0f), Color.parseColor("#FFF4F4F4")));
         ImageView imageView = new ImageView(this.mContext);
         imageView.setImageDrawable(drawable);
         FrameLayout.LayoutParams layoutParams = new FrameLayout.LayoutParams(
@@ -160,7 +160,7 @@ public class OfficeMenuDialog extends BaseOfficeDialog {
         TextView textView = new TextView(this.mContext);
         textView.setTextSize(0, DisplayUtils.dp2px(10.0f));
         textView.setTypeface(Typeface.DEFAULT_BOLD);
-        textView.setTextColor(color(com.re.docviewer.R.color.doc_on_dialog));
+        textView.setTextColor(Color.parseColor("#FF222222"));
         textView.setGravity(17);
         textView.setSingleLine();
         textView.setText(str);
@@ -168,10 +168,6 @@ public class OfficeMenuDialog extends BaseOfficeDialog {
         layoutParams2.topMargin = DisplayUtils.dp2px(8.0f);
         linearLayout.addView(textView, layoutParams2);
         return linearLayout;
-    }
-
-    private int color(int resId) {
-        return this.mContext.getResources().getColor(resId, this.mContext.getTheme());
     }
 
     public void setShareItemEnable(boolean z) {

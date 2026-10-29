@@ -3,7 +3,7 @@ package com.re.docviewer;
 import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
-import android.graphics.drawable.GradientDrawable;
+import android.graphics.Color;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.ViewGroup;
@@ -22,7 +22,7 @@ public final class ErrorPanel {
     public static LinearLayout show(Activity activity, String message) {
         LinearLayout root = new LinearLayout(activity);
         root.setOrientation(LinearLayout.VERTICAL);
-        root.setBackgroundColor(color(activity, R.color.doc_surface));
+        root.setBackgroundColor(Color.WHITE);
         root.setGravity(Gravity.CENTER);
         int padding = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16,
                 activity.getResources().getDisplayMetrics());
@@ -30,7 +30,6 @@ public final class ErrorPanel {
         TextView text = new TextView(activity);
         text.setGravity(Gravity.CENTER);
         text.setTextSize(13);
-        text.setTextColor(color(activity, R.color.doc_on_dialog));
         text.setPadding(padding, padding, padding, padding);
         text.setText(message);
 
@@ -43,12 +42,6 @@ public final class ErrorPanel {
 
         Button copy = new Button(activity);
         copy.setText("复制错误信息");
-        copy.setTextColor(color(activity, R.color.doc_on_primary));
-        GradientDrawable bg = new GradientDrawable();
-        bg.setCornerRadius(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20,
-                activity.getResources().getDisplayMetrics()));
-        bg.setColor(color(activity, R.color.doc_primary));
-        copy.setBackground(bg);
         copy.setOnClickListener(v -> {
             ClipboardManager manager = (ClipboardManager) activity.getSystemService(
                     Activity.CLIPBOARD_SERVICE);
@@ -61,9 +54,5 @@ public final class ErrorPanel {
         root.addView(copy, new LinearLayout.LayoutParams(
                 ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
         return root;
-    }
-
-    private static int color(Activity activity, int resId) {
-        return activity.getResources().getColor(resId, activity.getTheme());
     }
 }

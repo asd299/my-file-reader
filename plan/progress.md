@@ -112,16 +112,30 @@
       `OfficeMenuDialog` 全部改用 `doc_*` 资源色
 - [x] 构建通过并产出 APK（1.7.0 / 15，`app-arm64-v8a-debug.apk` 53,007,292 B）
 
+### 回退查看器主题色（1.7.1 / code 16）
+
+按反馈把 Word / Excel / PPT / PDF 查看器的配色全部退回夸克原样：
+
+- [x] `assets/ucoffice/ucoffice-master.apk` 换回原始 split 包（5,239,160 B），
+      1.6.3 里对 6 个 drawable（编辑光标、选中手柄、搜索光标、选区蒙层、传 PC 进度条）
+      做的颜色补丁同时失效；`SPLIT_ASSET_VERSION` 升到 `4` 让已解压的旧副本重新释放
+- [x] 删除 `OfficeThemeColors` / `PdfThemeColors` 及 `DocViewerBootstrap`、
+      `PdfViewerActivity` 里的调用：顶栏、底栏、状态栏、导航栏、弹窗恢复原始颜色
+- [x] 壳页面回退：`ParseErrorView`、`OfficeMenuDialog`、`ErrorPanel`、`OfficeActivity`
+      的加载/错误页恢复原先的白底、默认按钮样式
+- [x] 删除 `feature:docviewer` 的 `values/colors.xml`、`values-night/colors.xml`
+- [x] 保留宿主界面改动（关闭动态取色、固定轻阅青），未受影响
+
 ### 构建结果
 
 ```
 ./gradlew assembleDebug
 BUILD SUCCESSFUL
-app-arm64-v8a-debug.apk   53,007,292 B  (1.7.0 / 15)
+app-arm64-v8a-debug.apk   53,000,634 B  (1.7.1 / 16)
 ```
 
 产物校验（aapt2）：
-- label = 轻阅 (Debug)，versionName = 1.7.0，versionCode = 15，minSdk = 23
+- label = 轻阅 (Debug)，versionName = 1.7.1，versionCode = 16，minSdk = 23
 - application-icon 指向 `mipmap-anydpi-v26/ic_launcher.xml`（自适应图标）
 - 已注册 `OfficeActivity`（VIEW：pdf/msword/ms-excel/ms-powerpoint/ooxml）
 - 已注册 `SaveFileActivity`、`PdfViewerActivity`、`QuarkOfficeActivity`、`QuarkOfficeTextViewActivity`

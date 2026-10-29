@@ -16,8 +16,6 @@ import java.lang.reflect.Method;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import com.re.docviewer.office.OfficeThemeColors;
-
 import me.weishu.reflection.Reflection;
 
 /**
@@ -36,7 +34,7 @@ public final class DocViewerBootstrap {
     /** ucoffice split 的应用主题 id，运行期设置给 com.uc.office.* Activity。 */
     public static final int OFFICE_THEME_RES = 0x70080001;
     /** split 包内容版本：资产变更时手动递增，用于让已解压的旧副本失效。 */
-    private static final String SPLIT_ASSET_VERSION = "3";
+    private static final String SPLIT_ASSET_VERSION = "4";
     static final String OFFICE_PKG = "com.quark.browser.ucoffice";
     static final String PDF_PKG = "com.quark.browser.pdfviewer";
 
@@ -97,10 +95,6 @@ public final class DocViewerBootstrap {
         String name = activity.getClass().getName();
         if (name.startsWith("com.uc.office.") || name.startsWith("com.re.docviewer.")) {
             installForContext(activity);
-        }
-        // office 的主题色写死在代码里（顶栏/底栏底色、状态栏），只能等 onCreate 结束后重设。
-        if (name.startsWith("com.uc.office.")) {
-            OfficeThemeColors.apply(activity);
         }
     }
 
