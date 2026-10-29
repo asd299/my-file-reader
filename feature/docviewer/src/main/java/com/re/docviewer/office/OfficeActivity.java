@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.re.docviewer.DocViewerBootstrap;
+import com.re.docviewer.R;
 import com.re.docviewer.pdf.PdfViewerActivity;
 
 import java.io.File;
@@ -93,6 +95,7 @@ public class OfficeActivity extends Activity {
         mStatus = new TextView(this);
         mStatus.setGravity(Gravity.CENTER);
         mStatus.setTextSize(14);
+        mStatus.setTextColor(color(R.color.doc_on_dialog));
         mStatus.setPadding(dp(16), dp(16), dp(16), dp(16));
         mStatus.setText("正在准备文档…");
         // 失败时这里会显示完整堆栈，必须可滚动
@@ -103,6 +106,11 @@ public class OfficeActivity extends Activity {
                 LinearLayout.LayoutParams.MATCH_PARENT, 0, 1f));
         Button copy = new Button(this);
         copy.setText("复制错误信息");
+        copy.setTextColor(color(R.color.doc_on_primary));
+        GradientDrawable copyBg = new GradientDrawable();
+        copyBg.setCornerRadius(dp(20));
+        copyBg.setColor(color(R.color.doc_primary));
+        copy.setBackground(copyBg);
         copy.setOnClickListener(v -> copyError());
         root.addView(copy, new LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT));
@@ -268,5 +276,9 @@ public class OfficeActivity extends Activity {
 
     private int dp(int value) {
         return Math.round(value * getResources().getDisplayMetrics().density);
+    }
+
+    private int color(int resId) {
+        return getResources().getColor(resId, getTheme());
     }
 }

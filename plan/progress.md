@@ -89,16 +89,39 @@
 - [x] 跳过 `OfficeLoadingDialog`（它 `setContentView` 用自带的深色浮层）
 - [x] 构建通过并产出 APK（1.6.4 / 14，`app-arm64-v8a-debug.apk` 53,003,177 B）
 
+### 全面统一主题色 + 深色适配（1.7.0 / code 15）
+
+原则：文件内容之外的所有界面统一用「轻阅青」，浅色 / 深色都跟随系统；
+不复用夸克的白底 + 蓝强调色。
+
+- [x] 宿主界面：`Theme.NextPlayer` 去掉 `DynamicColors` 父主题，`NextPlayerTheme` 默认
+      `dynamicColor = false`，改为固定使用 core:ui 的 `md_theme_*`（浅色主色 #006A68 /
+      深色主色 #4DDAD6），全仓库没有其它硬编码 Compose 颜色
+- [x] 新增 `feature:docviewer` 资源 `values/colors.xml` 与 `values-night/colors.xml`：
+      `doc_primary` / `doc_chrome` / `doc_surface` / `doc_dialog` / `doc_dialog_tile` /
+      `doc_on_chrome` / `doc_on_dialog(_secondary)` 等，浅色深色各一套
+- [x] `OfficeThemeColors` 改为按资源取色（深浅色自动跟随），并补齐文字 / 图标：
+      顶栏底栏标题 #222222 → `doc_on_chrome`，深色下图标反色；状态栏浅色主色、深色 chrome
+- [x] 底栏选中态：`OfficeBottomItem.select()` 里写死的 #2828FF 改为每 300ms 补刷为 `doc_primary`
+      （此前记录的“已知遗留”由此消失）
+- [x] 弹窗：卡片 / 图标方块 / 确认按钮全部走资源色，深色下为深青卡片
+- [x] PDF 查看器：新增 `PdfThemeColors`，按 id 换色 —— 顶栏 `pdf_view_top_bar`、
+      底栏 `pdf_view_bottom_bar`、页码条 `pageSlider`、错误页 / 加载页，页面区域只铺底色；
+      在 `showViewer` 与 `onResume` 各调用一次（split 的顶栏底栏是 XML 白底 + #222 字）
+- [x] 壳页面：`ErrorPanel`、`ParseErrorView`、`OfficeActivity` 加载页、宿主覆盖的
+      `OfficeMenuDialog` 全部改用 `doc_*` 资源色
+- [x] 构建通过并产出 APK（1.7.0 / 15，`app-arm64-v8a-debug.apk` 53,007,292 B）
+
 ### 构建结果
 
 ```
 ./gradlew assembleDebug
 BUILD SUCCESSFUL
-app-arm64-v8a-debug.apk   53,003,177 B  (1.6.4 / 14)
+app-arm64-v8a-debug.apk   53,007,292 B  (1.7.0 / 15)
 ```
 
 产物校验（aapt2）：
-- label = 轻阅 (Debug)，versionName = 1.6.4，versionCode = 14，minSdk = 23
+- label = 轻阅 (Debug)，versionName = 1.7.0，versionCode = 15，minSdk = 23
 - application-icon 指向 `mipmap-anydpi-v26/ic_launcher.xml`（自适应图标）
 - 已注册 `OfficeActivity`（VIEW：pdf/msword/ms-excel/ms-powerpoint/ooxml）
 - 已注册 `SaveFileActivity`、`PdfViewerActivity`、`QuarkOfficeActivity`、`QuarkOfficeTextViewActivity`

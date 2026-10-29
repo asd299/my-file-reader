@@ -158,6 +158,8 @@ public class PdfViewerActivity extends Activity implements LifecycleOwner {
             setContentView(root);
             // split 顶栏布局的 app: 约束属性指向夸克自己的资源 id，宿主里解析不到，需按原语义补回
             PdfTopBarLayoutFix.apply(root);
+            // split 的顶栏 / 底栏写死白底 + 深灰字，这里统一换成轻阅主题色
+            PdfThemeColors.apply(this, root);
             // 拷贝文件期间可能已经走过 onResume，这里按当前 Activity 的真实状态补齐生命周期
             syncLifecycle();
             DocViewerBootstrap.installSplitResources(getApplicationContext().getResources());
@@ -531,6 +533,8 @@ public class PdfViewerActivity extends Activity implements LifecycleOwner {
         super.onResume();
         mResumed = true;
         syncLifecycle();
+        // split 在 resume 时会重设状态栏，这里补回主题色
+        PdfThemeColors.apply(this);
     }
 
     @Override

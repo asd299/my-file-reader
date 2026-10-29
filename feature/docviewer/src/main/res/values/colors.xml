@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 轻阅主题色：宿主 UI 由 core:ui 的 md_theme_* 提供，这里给 split 查看器的运行时换色用 -->
+    <color name="doc_primary">#006A68</color>
+    <color name="doc_on_primary">#FFFFFF</color>
+    <color name="doc_primary_container">#CFE8E4</color>
+    <color name="doc_on_primary_container">#00201F</color>
+
+    <!-- 顶栏 / 底栏 / 状态栏所在的 chrome -->
+    <color name="doc_chrome">#E6F4F3</color>
+    <color name="doc_on_chrome">#16332F</color>
+
+    <!-- 页面 / 弹窗表面 -->
+    <color name="doc_surface">#FAFDFC</color>
+    <color name="doc_dialog">#F2F8F7</color>
+    <color name="doc_dialog_tile">#DFF0EE</color>
+    <color name="doc_dialog_neutral">#E9F4F2</color>
+    <color name="doc_on_dialog">#16332F</color>
+    <color name="doc_on_dialog_secondary">#4A6663</color>
+</resources>

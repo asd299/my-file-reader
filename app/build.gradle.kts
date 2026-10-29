@@ -16,8 +16,8 @@ android {
         targetSdk = libs.versions.android.targetSdk.get().toInt()
         // 融合后的应用身份（FileViewer 基座 + 离线文档查看器）
         applicationId = "com.re.docviewer"
-        versionCode = 14
-        versionName = "1.6.4"
+        versionCode = 15
+        versionName = "1.7.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 

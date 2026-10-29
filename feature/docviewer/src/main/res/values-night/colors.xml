@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="doc_primary">#4DDAD6</color>
+    <color name="doc_on_primary">#003735</color>
+    <color name="doc_primary_container">#00504E</color>
+    <color name="doc_on_primary_container">#E6F4F3</color>
+
+    <color name="doc_chrome">#16211F</color>
+    <color name="doc_on_chrome">#E6F4F3</color>
+
+    <color name="doc_surface">#101413</color>
+    <color name="doc_dialog">#1B2624</color>
+    <color name="doc_dialog_tile">#24322F</color>
+    <color name="doc_dialog_neutral">#22302E</color>
+    <color name="doc_on_dialog">#E6F4F3</color>
+    <color name="doc_on_dialog_secondary">#9DB3B0</color>
+</resources>

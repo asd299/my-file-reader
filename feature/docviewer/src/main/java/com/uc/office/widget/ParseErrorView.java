@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.uc.office.constant.SSConstant;
 import com.uc.office.sdk.R;
 import com.uc.office.util.BitmapUtils;
 import com.uc.office.util.DisplayUtils;
@@ -38,7 +37,8 @@ public class ParseErrorView extends FrameLayout {
     }
 
     private void init() {
-        setBackgroundColor(-1);
+        setBackgroundColor(getContext().getResources()
+                .getColor(com.re.docviewer.R.color.doc_surface, getContext().getTheme()));
         LinearLayout linearLayout = new LinearLayout(getContext());
         linearLayout.setOrientation(1);
         linearLayout.setGravity(1);
@@ -50,14 +50,14 @@ public class ParseErrorView extends FrameLayout {
         TextView textView = new TextView(getContext());
         this.mTipView = textView;
         textView.setText(R.string.file_parse_fail);
-        this.mTipView.setTextColor(SSConstant.HEADER_GRIDLINE_COLOR);
+        this.mTipView.setTextColor(secondaryColor());
         this.mTipView.setTextSize(1, 12.0f);
         linearLayout.addView(this.mTipView, new LinearLayout.LayoutParams(-2, -2));
 
         TextView textView2 = new TextView(getContext());
         this.mCodeView = textView2;
         textView2.setVisibility(8);
-        this.mCodeView.setTextColor(SSConstant.HEADER_GRIDLINE_COLOR);
+        this.mCodeView.setTextColor(secondaryColor());
         this.mCodeView.setTextSize(1, 12.0f);
         linearLayout.addView(this.mCodeView, new LinearLayout.LayoutParams(-2, -2));
 
@@ -65,10 +65,11 @@ public class ParseErrorView extends FrameLayout {
         this.mActionView = button;
         button.setId(OfficeFrameLayout.ID_PARSE_ERROR_OPEN);
         this.mActionView.setText(R.string.open_on_third_app);
-        this.mActionView.setTextColor(-1);
+        this.mActionView.setTextColor(color(com.re.docviewer.R.color.doc_on_primary));
         this.mActionView.setTypeface(Typeface.DEFAULT_BOLD);
         this.mActionView.setTextSize(1, 14.0f);
-        this.mActionView.setBackground(BitmapUtils.getCornerBackground(-14145281, 12));
+        this.mActionView.setBackground(BitmapUtils.getCornerBackground(
+                color(com.re.docviewer.R.color.doc_primary), 12));
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(
                 DisplayUtils.dp2px(120.0f), DisplayUtils.dp2px(40.0f));
         layoutParams.topMargin = DisplayUtils.dp2px(17.0f);
@@ -100,6 +101,14 @@ public class ParseErrorView extends FrameLayout {
 
     public TextView getFeedbackView() {
         return this.mFeedbackView;
+    }
+
+    private int secondaryColor() {
+        return color(com.re.docviewer.R.color.doc_on_dialog_secondary);
+    }
+
+    private int color(int resId) {
+        return getContext().getResources().getColor(resId, getContext().getTheme());
     }
 
     private static String getErrorMessage(int i, int i2) {
